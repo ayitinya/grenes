@@ -1,13 +1,14 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.kotlinPluginSerialization)
 }
 
 kotlin {
     iosX64()
     iosArm64()
     iosSimulatorArm64()
-    
+
     androidTarget {
         compilations.all {
             kotlinOptions {
@@ -15,11 +16,15 @@ kotlin {
             }
         }
     }
-    
+
     jvm()
-    
+
     sourceSets {
         commonMain.dependencies {
+            implementation(libs.kotlinx.serialization.json)
+            implementation(libs.kotlinx.datetime)
+
+            implementation(libs.insert.koin.koin.core)
             // put your Multiplatform dependencies here
         }
     }

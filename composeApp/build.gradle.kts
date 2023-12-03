@@ -41,6 +41,9 @@ kotlin {
             implementation(compose.material)
             @OptIn(ExperimentalComposeLibrary::class)
             implementation(compose.components.resources)
+
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.cio)
         }
     }
 }

@@ -1,4 +1,12 @@
 [versions]
+ehcache = "3.10.8"
+exposedVersion = "0.41.1"
+h2 = "2.1.214"
+hikaricp = "5.0.1"
+junitJupiter = "5.9.3"
+koinCoreVersion = "3.5.2-RC1"
+kotlinxDatetime = "0.5.0"
+kotlinxSerializationJson = "1.6.0"
 ktor = "2.3.6"
 logback = "1.4.11"
 compose = "1.5.4"
@@ -19,9 +27,38 @@ kotlin = "1.9.20"
 junit = "4.13.2"
 
 [libraries]
+ehcache = { module = "org.ehcache:ehcache", version.ref = "ehcache" }
+exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposedVersion" }
+exposed-crypt = { module = "org.jetbrains.exposed:exposed-crypt", version.ref = "exposedVersion" }
+exposed-dao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exposedVersion" }
+exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposedVersion" }
+exposed-kotlin-datetime = { module = "org.jetbrains.exposed:exposed-kotlin-datetime", version.ref = "exposedVersion" }
+h2 = { module = "com.h2database:h2", version.ref = "h2" }
+hikariCP = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
+insert-koin-koin-core = { module = "io.insert-koin:koin-core", version.ref = "koinCoreVersion" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junitJupiter" }
+koin-android = { module = "io.insert-koin:koin-android", version.ref = "koinCoreVersion" }
+koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koinCoreVersion" }
+koin-ktor = { module = "io.insert-koin:koin-ktor", version.ref = "koinCoreVersion" }
+koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j", version.ref = "koinCoreVersion" }
+koin-test = { module = "io.insert-koin:koin-test", version.ref = "koinCoreVersion" }
+koin-test-junit5 = { module = "io.insert-koin:koin-test-junit5", version.ref = "koinCoreVersion" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-server-auth-jwt = { module = "io.ktor:ktor-server-auth-jwt", version.ref = "ktor" }
+ktor-server-auth = { module = "io.ktor:ktor-server-auth", version.ref = "ktor" }
+ktor-server-auto-head-response = { module = "io.ktor:ktor-server-auto-head-response", version.ref = "ktor" }
+ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
+ktor-server-cors = { module = "io.ktor:ktor-server-cors", version.ref = "ktor" }
+ktor-server-request-validation = { module = "io.ktor:ktor-server-request-validation", version.ref = "ktor" }
+ktor-server-resources = { module = "io.ktor:ktor-server-resources", version.ref = "ktor" }
+ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 ktor-server-core = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
 ktor-server-netty = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor" }
@@ -46,3 +83,4 @@ jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlinPluginSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
