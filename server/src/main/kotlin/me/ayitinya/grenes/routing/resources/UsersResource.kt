@@ -8,5 +8,11 @@ internal class UsersResource() {
     data class Id(val parent: UsersResource = UsersResource(), val id: Int)
 
     @Resource("/login")
-    data class Login(val parent: UsersResource = UsersResource(), val email: String, val password: String)
+    data class Login(
+        val parent: UsersResource = UsersResource(), val email: String, val password: String
+    )
+
+    @Resource("/me")
+    data class SessionUserDetails(val parent: UsersResource = UsersResource())
+
 }

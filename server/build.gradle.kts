@@ -43,6 +43,7 @@ dependencies {
     implementation(libs.ktor.server.auth.jwt)
     implementation(libs.ktor.server.cors)
     implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.server.config.yaml)
     testImplementation(libs.ktor.server.test.host)
 
 

@@ -16,8 +16,8 @@ internal object Locations : UUIDTable() {
     }
 }
 
-class Location(id: EntityID<UUID>) : UUIDEntity(id) {
-    companion object: UUIDEntityClass<Location>(Locations)
+class LocationEntity(id: EntityID<UUID>) : UUIDEntity(id) {
+    companion object: UUIDEntityClass<LocationEntity>(Locations)
 
     var city by Locations.city
     var country by Locations.country

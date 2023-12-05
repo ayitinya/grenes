@@ -1,6 +1,6 @@
 package me.ayitinya.grenes.data.users
 
-import me.ayitinya.grenes.data.location.Location
+import me.ayitinya.grenes.data.location.LocationEntity
 import me.ayitinya.grenes.data.location.Locations
 import me.ayitinya.grenes.data.media.Media
 import me.ayitinya.grenes.data.media.Medias
@@ -12,7 +12,7 @@ import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 import java.util.UUID
 
 
-internal object Users : UUIDTable() {
+internal object UsersTable : UUIDTable() {
     val fullName = varchar("fullName", length = 64)
     val displayName = varchar("displayName", length = 64)
     val email = varchar("email", length = 64)
@@ -23,13 +23,13 @@ internal object Users : UUIDTable() {
 }
 
 class UserEntity(id: EntityID<UUID>) : UUIDEntity(id) {
-    companion object : UUIDEntityClass<UserEntity>(Users)
+    companion object : UUIDEntityClass<UserEntity>(UsersTable)
 
-    var fullName by Users.fullName
-    var displayName by Users.displayName
-    var email by Users.email
-    var password by Users.password
-    var createdAt by Users.createdAt
-    var location by Location referencedOn Users.location
-    var profileAvatar by Media optionalReferencedOn Users.profileAvatar
+    var fullName by UsersTable.fullName
+    var displayName by UsersTable.displayName
+    var email by UsersTable.email
+    var password by UsersTable.password
+    var createdAt by UsersTable.createdAt
+    var location by LocationEntity referencedOn UsersTable.location
+    var profileAvatar by Media optionalReferencedOn UsersTable.profileAvatar
 }

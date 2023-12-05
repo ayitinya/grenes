@@ -1,17 +1,17 @@
 package me.ayitinya.grenes.data.location
 
-import me.ayitinya.grenes.data.Database
+import me.ayitinya.grenes.data.Db
 import org.jetbrains.exposed.sql.update
 
-object DefaultLocationDao : LocationDao {
+class DefaultLocationDao : LocationDao {
 
-    override suspend fun allLocations(): List<Location> = Database.dbQuery {
-        Location.all().toList()
+    override suspend fun allLocations(): List<LocationEntity> = Db.dbQuery {
+        LocationEntity.all().toList()
     }
 
-    override suspend fun addNewLocation(location: Location): Location? = Database.dbQuery {
+    override suspend fun addNewLocation(location: LocationEntity): LocationEntity? = Db.dbQuery {
         return@dbQuery try {
-            Location.new {
+            LocationEntity.new {
                 city = location.city
                 country = location.country
             }
@@ -21,7 +21,7 @@ object DefaultLocationDao : LocationDao {
         }
     }
 
-    override suspend fun editLocation(location: Location): Boolean = Database.dbQuery {
+    override suspend fun editLocation(location: LocationEntity): Boolean = Db.dbQuery {
         Locations.update({ Locations.id eq location.id }) {
             it[city] = location.city
             it[country] = location.country

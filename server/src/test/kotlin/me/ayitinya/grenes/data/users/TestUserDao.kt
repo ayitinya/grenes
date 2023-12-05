@@ -2,38 +2,31 @@ package me.ayitinya.grenes.data.users
 
 import kotlinx.coroutines.runBlocking
 import me.ayitinya.grenes.auth.Hashers
-import me.ayitinya.grenes.data.location.Location
-import me.ayitinya.grenes.data.location.Locations
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.StdOutSqlLogger
-import org.jetbrains.exposed.sql.addLogger
+import me.ayitinya.grenes.data.Db
+import me.ayitinya.grenes.data.location.LocationEntity
+import me.ayitinya.grenes.di.dbModule
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.koin.core.context.startKoin
+import org.koin.core.qualifier.named
+import org.koin.test.KoinTest
+import org.koin.test.get
+import org.koin.test.inject
 
-class TestUserDao {
+class TestUserDao : KoinTest {
 
-    private lateinit var database: Database
-    private val sut: UserDao = DefaultUserDao
+    private lateinit var database: Db
+    private val sut: UserDao by inject()
 
 
     @BeforeEach
     fun setUp() {
-        database = Database.connect("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", driver = "org.h2.Driver")
-
-        transaction(database) {
-            addLogger(StdOutSqlLogger)
-            SchemaUtils.create(Users, Locations)
-        }
-    }
-
-    @AfterEach
-    fun tearDown() {
+        database = get<Db>(named("test"))
     }
 
     @Test
@@ -52,7 +45,7 @@ class TestUserDao {
         val displayName = "Test User"
 
         val location = transaction {
-            return@transaction Location.new {
+            return@transaction LocationEntity.new {
                 city = "Test Location"
                 country = "Test Country"
             }
@@ -85,5 +78,15 @@ class TestUserDao {
 
     @Test
     fun getUser() {
+    }
+
+    companion object {
+        @JvmStatic
+        @BeforeAll
+        fun `start koin`(): Unit {
+            startKoin {
+                modules(dbModule)
+            }
+        }
     }
 }

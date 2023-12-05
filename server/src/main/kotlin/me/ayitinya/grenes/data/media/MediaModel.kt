@@ -1,7 +1,7 @@
 package me.ayitinya.grenes.data.media
 
 import me.ayitinya.grenes.data.users.UserEntity
-import me.ayitinya.grenes.data.users.Users
+import me.ayitinya.grenes.data.users.UsersTable
 import org.jetbrains.exposed.dao.UUIDEntity
 import org.jetbrains.exposed.dao.UUIDEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -18,7 +18,7 @@ object Medias : UUIDTable() {
     val fileUrl = varchar("fileUrl", 255)
     val type = enumerationByName("type", 10, FileTypes::class)
     val createdAt = timestamp("createdAt")
-    val user = reference("user", Users)
+    val user = reference("user", UsersTable)
 }
 
 class Media(id: EntityID<UUID>) : UUIDEntity(id) {
