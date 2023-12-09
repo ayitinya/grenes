@@ -11,15 +11,16 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val dbModule = module {
-    single(createdAtStart = true) {
+    single {
         Db(
             driverClassName = "org.h2.Driver", jdbcURL = "jdbc:h2:file:./build/db"
         )
     }
 
-    single(qualifier = named("test"), createdAtStart = true) {
+    factory(qualifier = named("test")) { params ->
         Db(
-            driverClassName = "org.h2.Driver", jdbcURL = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1"
+            driverClassName = "org.h2.Driver",
+            jdbcURL = "jdbc:h2:mem:${params.get<String>()};DB_CLOSE_DELAY=-1"
         )
     }
 

@@ -3,8 +3,6 @@ package me.ayitinya.grenes.data.users
 import java.util.UUID
 
 interface UserDao {
-    suspend fun authenticateUser(email: String, password: String): User?
-
     suspend fun allUsers(): List<User>
 
     suspend fun editUser(userEntity: UserEntity): Boolean
@@ -16,6 +14,6 @@ interface UserDao {
     suspend fun getUserByEmail(email: String): User?
 
     suspend fun addNewUser(
-        fullName: String, displayName: String, email: String, password: String, locationId: UUID
-    ): UserEntity
+        fullName: String, displayName: String, email: String, password: String, locationId: UUID? = null
+    ): User
 }

@@ -14,7 +14,7 @@ enum class FileTypes {
     VIDEO,
 }
 
-object Medias : UUIDTable() {
+object MediaTable : UUIDTable() {
     val fileUrl = varchar("fileUrl", 255)
     val type = enumerationByName("type", 10, FileTypes::class)
     val createdAt = timestamp("createdAt")
@@ -22,10 +22,10 @@ object Medias : UUIDTable() {
 }
 
 class Media(id: EntityID<UUID>) : UUIDEntity(id) {
-    companion object : UUIDEntityClass<Media>(Medias)
+    companion object : UUIDEntityClass<Media>(MediaTable)
 
-    var fileUrl by Medias.fileUrl
-    var type by Medias.type
-    var createdAt by Medias.createdAt
-    var user by UserEntity referencedOn Medias.user
+    var fileUrl by MediaTable.fileUrl
+    var type by MediaTable.type
+    var createdAt by MediaTable.createdAt
+    var user by UserEntity referencedOn MediaTable.user
 }

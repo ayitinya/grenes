@@ -2,6 +2,7 @@ package me.ayitinya.grenes.data
 
 import kotlinx.coroutines.Dispatchers
 import me.ayitinya.grenes.data.location.Locations
+import me.ayitinya.grenes.data.media.MediaTable
 import me.ayitinya.grenes.data.users.UsersTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -11,21 +12,18 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import org.jetbrains.exposed.sql.transactions.transaction
 
 internal class Db(driverClassName: String, jdbcURL: String) {
-    private var database: Database
+    val database: Database = Database.connect(jdbcURL, driverClassName)
 
     init {
-        database = Database.connect(jdbcURL, driverClassName)
-
         transaction(database) {
             addLogger(StdOutSqlLogger)
 
-            SchemaUtils.create(UsersTable, Locations)
+            SchemaUtils.create(UsersTable, Locations, MediaTable)
         }
     }
 
     companion object {
-        suspend fun <T> dbQuery(block: suspend () -> T): T =
+        suspend fun <T> query(block: suspend () -> T): T =
             newSuspendedTransaction(Dispatchers.IO) { block() }
     }
-
 }

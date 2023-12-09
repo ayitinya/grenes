@@ -11,6 +11,6 @@ data class User(
     val displayName: String,
     val email: String,
     val createdAt: Instant,
-    val location: Location,
+    val location: Location? = null,
     val profileAvatar: String? = null
 )

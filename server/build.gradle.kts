@@ -44,6 +44,9 @@ dependencies {
     implementation(libs.ktor.server.cors)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.server.config.yaml)
+    implementation(libs.ktor.server.request.validation)
+    implementation(libs.ktor.server.status.pages)
+    testImplementation(libs.ktor.client.content.negotiation)
     testImplementation(libs.ktor.server.test.host)
 
 

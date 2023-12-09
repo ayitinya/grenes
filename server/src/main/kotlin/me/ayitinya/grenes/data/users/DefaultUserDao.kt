@@ -3,33 +3,48 @@ package me.ayitinya.grenes.data.users
 import kotlinx.datetime.Clock
 import me.ayitinya.grenes.auth.Hashers.getHexDigest
 import me.ayitinya.grenes.data.Db
+import me.ayitinya.grenes.data.location.Location
 import me.ayitinya.grenes.data.location.LocationEntity
 import org.jetbrains.exposed.sql.update
 import java.util.UUID
 
 
 class DefaultUserDao : UserDao {
-    override suspend fun allUsers(): List<User> = Db.dbQuery {
+    private fun UserEntity.toUser(): User {
+        try {
+            return User(
+                id = id.toString(),
+                fullName = fullName,
+                displayName = displayName,
+                email = email,
+                createdAt = createdAt,
+                location = if (location != null) Location(
+                    id = location!!.id.toString(),
+                    city = location!!.city,
+                    country = location!!.country
+                ) else null,
+            )
+
+        } catch (error: Exception) {
+            throw error
+        }
+
+    }
+
+
+    private fun List<UserEntity>.toUsers(): List<User> = this.map { it.toUser() }
+
+    override suspend fun allUsers(): List<User> = Db.query {
         UserEntity.all().toList().toUsers()
     }
 
-    override suspend fun authenticateUser(email: String, password: String): User? = Db.dbQuery {
-        UserEntity.find { UsersTable.email eq email }.firstOrNull()?.let {
-            if (it.password == getHexDigest(password)) {
-                return@dbQuery it.let(::userEntityToUser)
-            } else {
-                return@dbQuery null
-            }
-        }
-    }
-
     override suspend fun addNewUser(
-        fullName: String, displayName: String, email: String, password: String, locationId: UUID
-    ): UserEntity = Db.dbQuery {
-        LocationEntity.findById(locationId).let {
-            if (it == null) {
-                throw Exception("Location not found")
-            }
+        fullName: String, displayName: String, email: String, password: String, locationId: UUID?
+    ): User = Db.query {
+        val location = locationId?.let {
+            LocationEntity.findById(it)
+        }
+
 
             UserEntity.new {
                 this.fullName = fullName
@@ -37,13 +52,13 @@ class DefaultUserDao : UserDao {
                 this.email = email
                 this.password = getHexDigest(password)
                 this.createdAt = Clock.System.now()
-                this.location = it
+                this.location = location
             }
-        }
+        .toUser()
 
     }
 
-    override suspend fun editUser(userEntity: UserEntity) = Db.dbQuery {
+    override suspend fun editUser(userEntity: UserEntity) = Db.query {
         UsersTable.update({ UsersTable.id eq userEntity.id }) {
             it[this.fullName] = userEntity.fullName
             it[this.displayName] = userEntity.displayName
@@ -52,23 +67,22 @@ class DefaultUserDao : UserDao {
         } > 0
     }
 
-    override suspend fun deleteUser(userId: UUID): Boolean = Db.dbQuery {
+    override suspend fun deleteUser(userId: UUID): Boolean = Db.query {
         val userEntity = UserEntity.findById(userId)
 
         if (userEntity != null) {
             userEntity.delete()
-            return@dbQuery true
+            return@query true
         } else {
-            return@dbQuery false
+            return@query false
         }
     }
 
-    override suspend fun getUserByEmail(email: String): User? = Db.dbQuery {
-        return@dbQuery UserEntity.find { UsersTable.email eq email }.firstOrNull()
-            .let(::userEntityToUser)
+    override suspend fun getUserByEmail(email: String): User? = Db.query {
+        return@query UserEntity.find { UsersTable.email eq email }.firstOrNull()?.toUser()
     }
 
-    override suspend fun getUserById(userId: UUID): User? = Db.dbQuery {
-        UserEntity.findById(userId).let(::userEntityToUser)
+    override suspend fun getUserById(userId: UUID): User? = Db.query {
+        UserEntity.findById(userId)?.toUser()
     }
 }
