@@ -39,11 +39,17 @@ kotlin {
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material)
+            implementation(compose.material3)
             @OptIn(ExperimentalComposeLibrary::class)
             implementation(compose.components.resources)
 
+            implementation(compose.materialIconsExtended)
+
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.cio)
+
+            implementation(libs.decompose)
+            implementation(libs.decompose.extensions.compose)
         }
     }
 }

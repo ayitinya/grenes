@@ -1,4 +1,5 @@
 [versions]
+decompose = "3.0.0-alpha01"
 ehcache = "3.10.8"
 exposedVersion = "0.41.1"
 h2 = "2.1.214"
@@ -10,7 +11,7 @@ kotlinxSerializationJson = "1.6.2"
 ktor = "2.3.6"
 logback = "1.4.11"
 compose = "1.5.4"
-compose-plugin = "1.5.11"
+compose-plugin = "1.6.0-alpha01"
 compose-compiler = "1.5.4"
 agp = "8.1.4"
 android-minSdk = "24"
@@ -23,10 +24,12 @@ androidx-material = "1.10.0"
 androidx-constraintlayout = "2.1.4"
 androidx-test-junit = "1.1.5"
 androidx-espresso-core = "3.5.1"
-kotlin = "1.9.20"
+kotlin = "1.9.21"
 junit = "4.13.2"
 
 [libraries]
+decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
+decompose-extensions-compose = { module = "com.arkivanov.decompose:extensions-compose", version.ref = "decompose" }
 ehcache = { module = "org.ehcache:ehcache", version.ref = "ehcache" }
 exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposedVersion" }
 exposed-crypt = { module = "org.jetbrains.exposed:exposed-crypt", version.ref = "exposedVersion" }
