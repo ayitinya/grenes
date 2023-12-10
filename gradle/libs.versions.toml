@@ -1,15 +1,17 @@
 [versions]
+accompanist_version = "0.30.1"
 decompose = "3.0.0-alpha01"
 ehcache = "3.10.8"
 exposedVersion = "0.41.1"
 h2 = "2.1.214"
 hikaricp = "5.0.1"
 junitJupiter = "5.9.3"
+koinCompose = "1.1.1-RC1"
 koinCoreVersion = "3.5.2-RC1"
 kotlinxDatetime = "0.5.0"
 kotlinxSerializationJson = "1.6.2"
 ktor = "2.3.6"
-logback = "1.4.11"
+logback = "1.4.14"
 compose = "1.5.4"
 compose-plugin = "1.6.0-alpha01"
 compose-compiler = "1.5.4"
@@ -26,8 +28,10 @@ androidx-test-junit = "1.1.5"
 androidx-espresso-core = "3.5.1"
 kotlin = "1.9.21"
 junit = "4.13.2"
+precompose = "1.5.8"
 
 [libraries]
+accompanist-systemuicontroller = { group = "com.google.accompanist", name = "accompanist-systemuicontroller", version.ref = "accompanist_version" }
 decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
 decompose-extensions-compose = { module = "com.arkivanov.decompose:extensions-compose", version.ref = "decompose" }
 ehcache = { module = "org.ehcache:ehcache", version.ref = "ehcache" }
@@ -42,6 +46,7 @@ insert-koin-koin-core = { module = "io.insert-koin:koin-core", version.ref = "ko
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junitJupiter" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koinCoreVersion" }
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koinCoreVersion" }
+koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koinCompose" }
 koin-ktor = { module = "io.insert-koin:koin-ktor", version.ref = "koinCoreVersion" }
 koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j", version.ref = "koinCoreVersion" }
 koin-test = { module = "io.insert-koin:koin-test", version.ref = "koinCoreVersion" }
@@ -81,6 +86,9 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 androidx-material = { group = "com.google.android.material", name = "material", version.ref = "androidx-material" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "androidx-constraintlayout" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
+precompose = { module = "moe.tlaster:precompose", version.ref = "precompose" }
+precompose-koin = { module = "moe.tlaster:precompose-koin", version.ref = "precompose" }
+precompose-viewmodel = { module = "moe.tlaster:precompose-viewmodel", version.ref = "precompose" }
 
 [plugins]
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

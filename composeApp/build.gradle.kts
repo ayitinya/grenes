@@ -5,6 +5,8 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
+
+    alias(libs.plugins.kotlinPluginSerialization)
 }
 
 kotlin {
@@ -48,8 +50,14 @@ kotlin {
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.cio)
 
-            implementation(libs.decompose)
-            implementation(libs.decompose.extensions.compose)
+
+            implementation(libs.insert.koin.koin.core)
+            implementation(libs.koin.compose)
+
+            implementation(libs.precompose)
+            implementation(libs.precompose.viewmodel)
+            implementation(libs.precompose.koin)
+
         }
     }
 }
@@ -91,6 +99,9 @@ android {
     }
     dependencies {
         debugImplementation(libs.compose.ui.tooling)
+        implementation(libs.accompanist.systemuicontroller)
+
+        implementation("io.insert-koin:koin-android:3.5.2-RC1")
     }
 }
 
