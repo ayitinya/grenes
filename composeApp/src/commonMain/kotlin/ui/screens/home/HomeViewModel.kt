@@ -1,4 +1,4 @@
-package ui.home
+package ui.screens.home
 
 import moe.tlaster.precompose.viewmodel.ViewModel
 
