@@ -2,13 +2,16 @@ package navigation
 
 sealed class Screens(val route: String) {
     data object Home : Screens("home")
-    data object Login : Screens("login")
-    data object Register : Screens("register")
-    data object Landing : Screens("landing")
+
+    sealed class Onboarding(private val subRoute: String) : Screens("onboarding/$subRoute") {
+        data object Auth : Onboarding("auth")
+        data object Profile : Onboarding("profile")
+        data object Landing : Onboarding("landing")
+    }
 
     companion object {
         val allScreens: List<Screens> = listOf(
-            Home, Login, Register, Landing
+            Home,
         )
     }
 }

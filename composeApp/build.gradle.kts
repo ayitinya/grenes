@@ -13,7 +13,7 @@ kotlin {
     androidTarget {
         compilations.all {
             kotlinOptions {
-                jvmTarget = "1.8"
+                jvmTarget = "11"
             }
         }
     }
@@ -30,7 +30,7 @@ kotlin {
     }
     
     sourceSets {
-        
+
         androidMain.dependencies {
             implementation(libs.compose.ui)
             implementation(libs.compose.ui.tooling.preview)
@@ -39,6 +39,16 @@ kotlin {
             implementation(libs.accompanist.systemuicontroller)
 
             implementation(libs.koin.android)
+
+            implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
+
+            // Add the dependency for the Firebase Authentication library
+            // When using the BoM, you don't specify versions in Firebase library dependencies
+            implementation("com.google.firebase:firebase-auth")
+
+            // Also add the dependency for the Google Play services library and specify its version
+            implementation("com.google.android.gms:play-services-auth:20.7.0")
+            implementation("com.google.firebase:firebase-dynamic-links")
         }
 
         commonMain.dependencies {
@@ -68,6 +78,8 @@ kotlin {
             implementation(libs.multiplatform.settings.serialization)
 
             implementation(libs.material3.window.sizeclass.multiplatform)
+
+            implementation("dev.gitlive:firebase-auth:1.10.4")
 
         }
     }
@@ -105,11 +117,13 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     dependencies {
         debugImplementation(libs.compose.ui.tooling)
     }
+
+    apply(plugin = "com.google.gms.google-services")
 }
 

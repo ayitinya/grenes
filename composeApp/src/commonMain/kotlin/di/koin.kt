@@ -1,3 +1,3 @@
 package di
 
-val commonModules = listOf(viewModelModule)
+val commonModules = listOf(viewModelModule, useCaseModule)
