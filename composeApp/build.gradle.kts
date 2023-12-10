@@ -35,7 +35,12 @@ kotlin {
             implementation(libs.compose.ui)
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.multiplatform.settings.datastore)
+            implementation(libs.accompanist.systemuicontroller)
+
+            implementation(libs.koin.android)
         }
+
         commonMain.dependencies {
             implementation(projects.shared)
             implementation(compose.runtime)
@@ -57,6 +62,12 @@ kotlin {
             implementation(libs.precompose)
             implementation(libs.precompose.viewmodel)
             implementation(libs.precompose.koin)
+
+            implementation(libs.multiplatform.settings)
+            implementation(libs.multiplatform.settings.test)
+            implementation(libs.multiplatform.settings.serialization)
+
+            implementation(libs.material3.window.sizeclass.multiplatform)
 
         }
     }
@@ -99,9 +110,6 @@ android {
     }
     dependencies {
         debugImplementation(libs.compose.ui.tooling)
-        implementation(libs.accompanist.systemuicontroller)
-
-        implementation("io.insert-koin:koin-android:3.5.2-RC1")
     }
 }
 
