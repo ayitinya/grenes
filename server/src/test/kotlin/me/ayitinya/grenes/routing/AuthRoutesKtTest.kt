@@ -4,26 +4,18 @@ import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.*
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
-import io.ktor.server.config.ApplicationConfig
-import io.ktor.server.config.MapApplicationConfig
-import io.ktor.server.config.mergeWith
-import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
-import io.ktor.util.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import me.ayitinya.grenes.data.Db
 import me.ayitinya.grenes.data.users.UserDao
-import me.ayitinya.grenes.data.users.UserEntity
 import me.ayitinya.grenes.data.users.UsersTable
 import me.ayitinya.grenes.di.dbModule
-import me.ayitinya.grenes.main
 import me.ayitinya.grenes.server.resources.Token
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -42,18 +34,6 @@ import kotlin.test.assertEquals
 class AuthRoutesKtTest : KoinTest {
     private lateinit var db: Db
 
-    private fun ApplicationTestBuilder.init() {
-        application {
-            main(testing = true)
-        }
-
-        environment {
-            config =
-                ApplicationConfig("test_application.yaml").mergeWith(MapApplicationConfig("ktor.environment" to "test"))
-        }
-    }
-
-
     @BeforeEach
     fun `setup db`() {
         db = get(named("test")) {
@@ -62,10 +42,6 @@ class AuthRoutesKtTest : KoinTest {
 
         TransactionManager.defaultDatabase = db.database
 
-        transaction {
-            val res = UserEntity.find { UsersTable.email eq "" }.toList()
-            println("res = $res")
-        }
     }
 
     @Test
@@ -109,9 +85,7 @@ class AuthRoutesKtTest : KoinTest {
         val userDao: UserDao by inject()
 
         runBlocking {
-            userDao.addNewUser(
-                fullName = "John Cabell Breckinridge",
-                displayName = "John C. Breckinridge",
+            userDao.createNewUserWithEmailAndPassword(
                 email = "john.c.breckinridge@altostrat.com",
                 password = "password"
             )
@@ -149,9 +123,7 @@ class AuthRoutesKtTest : KoinTest {
         val userDao: UserDao by inject()
 
         runBlocking {
-            userDao.addNewUser(
-                fullName = "John Cabell Breckinridge",
-                displayName = "John C. Breckinridge",
+            userDao.createNewUserWithEmailAndPassword(
                 email = "john.c.breckinridge@altostrat.com",
                 password = "password"
             )

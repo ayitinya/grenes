@@ -17,7 +17,7 @@ import moe.tlaster.precompose.koin.koinViewModel
 fun AuthScreen(
     modifier: Modifier = Modifier,
     viewModel: AuthScreenViewModel = koinViewModel(AuthScreenViewModel::class),
-    signUp: () -> Unit,
+    signUp: (email: String) -> Unit,
     login: () -> Unit,
     onBackButtonClick: () -> Unit,
 ) {
@@ -103,6 +103,27 @@ fun AuthScreen(
         }
     }
 
+    val showSnackbar by remember { mutableStateOf(false) }
+
+    if (showSnackbar) {
+        Snackbar(
+            modifier = Modifier.padding(8.dp),
+        ) {
+            Text(
+                when (state.authFlowState) {
+                    is AuthFlowState.UserLoggedIn -> "Logged in successfully"
+                    is AuthFlowState.UserCreated -> "User created successfully"
+                    AuthFlowState.EmailSent -> "Email sent successfully"
+                    is AuthFlowState.Error -> (state.authFlowState as AuthFlowState.Error).message
+                    AuthFlowState.Idle -> ""
+                    AuthFlowState.Loading -> "Loading..."
+                    AuthFlowState.UserDoesNotExist -> "User does not exist"
+                    is AuthFlowState.UserExist -> "User already exist"
+                }
+            )
+        }
+    }
+
     LaunchedEffect(state.authFlowState) {
         when (state.authFlowState) {
             is AuthFlowState.UserLoggedIn -> {
@@ -110,7 +131,7 @@ fun AuthScreen(
             }
 
             is AuthFlowState.UserCreated -> {
-                signUp()
+                signUp(state.email)
             }
 
             AuthFlowState.EmailSent -> {}

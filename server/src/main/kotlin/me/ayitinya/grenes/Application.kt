@@ -5,6 +5,7 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.autohead.*
 import io.ktor.server.resources.*
 import io.ktor.server.routing.*
+import me.ayitinya.grenes.config.firebase.FirebaseAdmin
 import me.ayitinya.grenes.data.Db
 import me.ayitinya.grenes.di.dbModule
 import me.ayitinya.grenes.plugins.configureAuthentication
@@ -22,6 +23,8 @@ import org.koin.logger.slf4jLogger
 fun main(args: Array<String>): Unit = EngineMain.main(args)
 
 fun Application.di() {
+    FirebaseAdmin.init()
+
     install(Koin) {
         slf4jLogger()
         modules(dbModule)

@@ -7,6 +7,8 @@ import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import me.ayitinya.grenes.auth.firebase.FirebaseUserPrincipal
+import me.ayitinya.grenes.auth.firebase.firebase
 import me.ayitinya.grenes.routing.authRoutes
 import java.util.concurrent.TimeUnit
 
@@ -36,7 +38,14 @@ fun Application.configureAuthentication() {
                 call.respond(HttpStatusCode.Unauthorized, "Token is not valid or has expired")
             }
         }
+
+        firebase {
+            validate {
+                FirebaseUserPrincipal(it.uid, it.name.orEmpty())
+            }
+        }
     }
+
 
     routing {
         authRoutes(privateKeyString, issuer, audience, jwkProvider)

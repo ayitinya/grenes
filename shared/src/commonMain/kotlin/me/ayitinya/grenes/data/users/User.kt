@@ -6,9 +6,8 @@ import me.ayitinya.grenes.data.location.Location
 
 @Serializable
 data class User(
-    val id: String,
-    val fullName: String,
-    val displayName: String,
+    val uid: String,
+    val displayName: String? = null,
     val email: String,
     val createdAt: Instant,
     val location: Location? = null,

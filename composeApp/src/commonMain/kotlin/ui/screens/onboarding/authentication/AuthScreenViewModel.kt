@@ -1,12 +1,13 @@
 package ui.screens.onboarding.authentication
 
+import data.users.UsersRepository
 import domain.AuthenticationUseCase
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
 
 
-class AuthScreenViewModel(private val authenticationUseCase: AuthenticationUseCase) : ViewModel() {
+class AuthScreenViewModel(private val usersRepository: UsersRepository, private val authenticationUseCase: AuthenticationUseCase) : ViewModel() {
     private val _uiState = MutableUiState()
     val uiState: UiState = _uiState
 
@@ -19,15 +20,15 @@ class AuthScreenViewModel(private val authenticationUseCase: AuthenticationUseCa
     }
 
 
-    suspend fun sendSignInLinkToEmail(email: String) {
-        _uiState.authFlowState = AuthFlowState.Loading
-
-        authenticationUseCase.sendSignInLinkToEmail(email = email, onEmailSent = {
-            _uiState.authFlowState = AuthFlowState.EmailSent
-        }, onError = { error ->
-            _uiState.authFlowState = AuthFlowState.Error(error)
-        })
-    }
+//    suspend fun sendSignInLinkToEmail(email: String) {
+//        _uiState.authFlowState = AuthFlowState.Loading
+//
+//        authenticationUseCase.sendSignInLinkToEmail(email = email, onEmailSent = {
+//            _uiState.authFlowState = AuthFlowState.EmailSent
+//        }, onError = { error ->
+//            _uiState.authFlowState = AuthFlowState.Error(error)
+//        })
+//    }
 
     fun fetchSignInMethodsForEmail() {
         _uiState.authFlowState = AuthFlowState.Loading
@@ -57,9 +58,10 @@ class AuthScreenViewModel(private val authenticationUseCase: AuthenticationUseCa
     fun createUserWithEmailAndPassword() {
         viewModelScope.launch {
             try {
-                authenticationUseCase.createUserWithEmailAndPassword(email = uiState.email, password = uiState.password)
+                usersRepository.createUserWithEmailAndPassword(email = uiState.email, password = uiState.password)
                 _uiState.authFlowState = AuthFlowState.UserCreated
             } catch (exception: Exception) {
+                println(exception.message)
                 _uiState.authFlowState = AuthFlowState.Error(exception.message ?: "Unknown Error")
             }
         }

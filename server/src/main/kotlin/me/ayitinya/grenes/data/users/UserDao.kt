@@ -1,19 +1,19 @@
 package me.ayitinya.grenes.data.users
 
-import java.util.UUID
-
 interface UserDao {
     suspend fun allUsers(): List<User>
 
-    suspend fun editUser(userEntity: UserEntity): Boolean
+    suspend fun updateUser(uid: String, user: User)
 
-    suspend fun deleteUser(userId: UUID): Boolean
+    suspend fun deleteUser(uid: String)
 
-    suspend fun getUserById(userId: UUID): User?
+    suspend fun getUserById(uid: String): User?
 
     suspend fun getUserByEmail(email: String): User?
 
-    suspend fun addNewUser(
-        fullName: String, displayName: String, email: String, password: String, locationId: UUID? = null
-    ): User
+    suspend fun createNewUserWithUidAndEmail(uid: String, email: String)
+
+    suspend fun createNewUserWithEmailAndPassword(
+        email: String, password: String,
+    )
 }

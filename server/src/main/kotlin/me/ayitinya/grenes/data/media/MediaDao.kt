@@ -6,14 +6,14 @@ interface MediaDao {
     suspend fun insert(
         fileUrl: String,
         types: FileTypes,
-        userId: UUID
-    ): Media
+        uid: String
+    )
 
-    suspend fun delete(id: UUID): Boolean
+    suspend fun delete(id: UUID)
 
-    suspend fun getMediaByUserId(userId: UUID): List<Media>
-
-    suspend fun getMediaByUserIdAndType(userId: UUID, type: FileTypes): List<Media>
-
-    suspend fun getMediaById(id: UUID): Media?
+//    suspend fun getMediaByUserId(uid: String): List<Media>
+//
+//    suspend fun getMediaByUserIdAndType(uid: String, type: FileTypes): List<Media>
+//
+//    suspend fun getMediaById(id: UUID): Media?
 }

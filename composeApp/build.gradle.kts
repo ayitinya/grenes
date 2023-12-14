@@ -17,18 +17,16 @@ kotlin {
             }
         }
     }
-    
+
     listOf(
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64()
+        iosX64(), iosArm64(), iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
         }
     }
-    
+
     sourceSets {
 
         androidMain.dependencies {
@@ -47,23 +45,34 @@ kotlin {
             implementation("com.google.firebase:firebase-auth")
 
             // Also add the dependency for the Google Play services library and specify its version
-            implementation("com.google.android.gms:play-services-auth:20.7.0")
+            implementation(libs.gms.play.services.auth)
             implementation("com.google.firebase:firebase-dynamic-links")
+        }
+
+        commonTest.dependencies {
+            implementation(libs.koin.test)
+            implementation(libs.multiplatform.settings.test)
+            implementation(libs.kotlin.test.junit)
         }
 
         commonMain.dependencies {
             implementation(projects.shared)
+
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material)
             implementation(compose.material3)
-            @OptIn(ExperimentalComposeLibrary::class)
-            implementation(compose.components.resources)
+            @OptIn(ExperimentalComposeLibrary::class) implementation(compose.components.resources)
 
             implementation(compose.materialIconsExtended)
 
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.cio)
+            implementation(libs.ktor.client.logging)
+            implementation(libs.ktor.client.resources)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.client.auth)
+            implementation(libs.ktor.serialization.kotlinx.json)
 
 
             implementation(libs.insert.koin.koin.core)
@@ -74,13 +83,15 @@ kotlin {
             implementation(libs.precompose.koin)
 
             implementation(libs.multiplatform.settings)
-            implementation(libs.multiplatform.settings.test)
             implementation(libs.multiplatform.settings.serialization)
 
             implementation(libs.material3.window.sizeclass.multiplatform)
 
-            implementation("dev.gitlive:firebase-auth:1.10.4")
+            implementation(libs.kotlinx.datetime)
+            implementation(libs.kotlinx.serialization.json)
 
+
+            implementation(libs.firebase.auth)
         }
     }
 }

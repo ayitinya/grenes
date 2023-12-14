@@ -1,5 +1,6 @@
 package di
 
+import navigation.SharedViewModel
 import org.koin.dsl.module
 import ui.screens.home.HomeViewModel
 import ui.screens.onboarding.authentication.AuthScreenViewModel
@@ -11,10 +12,14 @@ val viewModelModule = module {
     }
 
     factory {
-        ProfileScreenViewModel()
+        ProfileScreenViewModel(get())
     }
 
     factory {
-        AuthScreenViewModel(get())
+        AuthScreenViewModel(get(), get())
+    }
+
+    factory {
+        SharedViewModel(get())
     }
 }

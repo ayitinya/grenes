@@ -1,6 +1,7 @@
 package domain
 
-import data.users.remote.FirebaseUser
+import dev.gitlive.firebase.auth.FirebaseUser
+
 
 interface AuthenticationUseCase {
     suspend fun getCurrentUser(): FirebaseUser?

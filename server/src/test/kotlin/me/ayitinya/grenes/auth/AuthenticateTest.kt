@@ -47,11 +47,9 @@ class AuthenticateTest : KoinTest {
 
         runBlocking {
 
-                userDao.addNewUser(
-                    fullName = user.fullName,
+                userDao.createNewUserWithEmailAndPassword(
                     email = user.email,
                     password = "password",
-                    displayName = user.displayName,
                 )
             }
 
@@ -61,7 +59,7 @@ class AuthenticateTest : KoinTest {
     fun `authenticate User with right data`() {
         runBlocking {
             val authenticate = authenticateUser(
-                email = user.email,
+                email = user.email!!,
                 rawPassword = "password"
             )
             assert(authenticate is AuthStates.Authenticated)
@@ -72,7 +70,7 @@ class AuthenticateTest : KoinTest {
     fun `authenticate User with wrong password`() {
         runBlocking {
             val authenticate = authenticateUser(
-                email = user.email,
+                email = user.email!!,
                 rawPassword = "wrong password"
             )
             assert(authenticate is AuthStates.InvalidCredentials)

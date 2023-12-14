@@ -7,7 +7,6 @@ import io.ktor.server.config.MapApplicationConfig
 import io.ktor.server.config.mergeWith
 import io.ktor.server.testing.testApplication
 import me.ayitinya.grenes.data.Db
-import me.ayitinya.grenes.data.users.UserEntity
 import me.ayitinya.grenes.data.users.UsersTable
 import me.ayitinya.grenes.di.dbModule
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq

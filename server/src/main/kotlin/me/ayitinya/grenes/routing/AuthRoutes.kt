@@ -3,7 +3,6 @@ package me.ayitinya.grenes.routing
 import com.auth0.jwk.JwkProvider
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
-import io.ktor.server.http.content.staticFiles
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -16,7 +15,6 @@ import me.ayitinya.grenes.auth.jwtToken
 import me.ayitinya.grenes.data.users.UserDao
 import me.ayitinya.grenes.routing.resources.AuthResource
 import org.koin.ktor.ext.inject
-import java.io.File
 import java.util.UUID
 
 @Serializable
@@ -76,12 +74,9 @@ internal fun Route.authRoutes(
         try {
             val userDetails = call.receive<RegistrationDetails>()
 
-            userDao.addNewUser(
-                fullName = userDetails.fullName,
-                displayName = userDetails.displayName,
+            userDao.createNewUserWithEmailAndPassword(
                 email = userDetails.email,
-                password = userDetails.password,
-                locationId = userDetails.locationId
+                password = userDetails.password
             )
 
             val jwtToken = jwtToken(

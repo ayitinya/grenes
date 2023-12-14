@@ -4,8 +4,8 @@ import com.auth0.jwk.JwkProvider
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import me.ayitinya.grenes.data.Db
-import me.ayitinya.grenes.data.users.UserEntity
 import me.ayitinya.grenes.data.users.UsersTable
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import java.security.KeyFactory
 import java.security.interfaces.RSAPrivateKey
@@ -19,25 +19,24 @@ internal suspend fun authenticateUser(
     email: String,
     rawPassword: String
 ): AuthStates {
-
-    val user = newSuspendedTransaction {
-        return@newSuspendedTransaction Db.query { UserEntity.find { UsersTable.email eq email } }
-            .firstOrNull()
-    }
-
-    return try {
-        if (user != null) {
-            if (Hashers.verifyPassword(user.password, rawPassword)) {
-                return AuthStates.Authenticated
-
-            } else {
-                AuthStates.InvalidCredentials
+    return newSuspendedTransaction {
+        return@newSuspendedTransaction Db.query {
+            UsersTable.select { UsersTable.email eq email }.distinct().firstOrNull().let {
+                try {
+                    if (it != null && it[UsersTable.password] != null) {
+                        if (Hashers.verifyPassword(it[UsersTable.password]!!, rawPassword)) {
+                            return@query AuthStates.Authenticated
+                        } else {
+                            return@query AuthStates.InvalidCredentials
+                        }
+                    } else {
+                        return@query AuthStates.UserNotFound
+                    }
+                } catch (e: Exception) {
+                    return@query AuthStates.Error
+                }
             }
-        } else {
-            AuthStates.UserNotFound
         }
-    } catch (e: Exception) {
-        return AuthStates.Error
     }
 }
 

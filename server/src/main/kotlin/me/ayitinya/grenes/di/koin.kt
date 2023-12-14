@@ -11,9 +11,15 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val dbModule = module {
+//    single {
+//        Db(
+//            driverClassName = "org.h2.Driver", jdbcURL = "jdbc:h2:file:./build/db"
+//        )
+//    }
+
     single {
         Db(
-            driverClassName = "org.h2.Driver", jdbcURL = "jdbc:h2:file:./build/db"
+            driverClassName = "org.h2.Driver", jdbcURL = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1"
         )
     }
 
@@ -29,4 +35,8 @@ val dbModule = module {
     single<LocationDao> { DefaultLocationDao() }
 
     single<MediaDao> { DefaultMediaDao() }
+}
+
+val appModule = module {
+
 }

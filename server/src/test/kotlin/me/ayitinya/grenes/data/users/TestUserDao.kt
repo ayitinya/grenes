@@ -4,10 +4,10 @@ import kotlinx.coroutines.runBlocking
 import me.ayitinya.grenes.auth.Hashers
 import me.ayitinya.grenes.data.Db
 import me.ayitinya.grenes.data.location.LocationEntity
-import me.ayitinya.grenes.data.location.Locations.city
-import me.ayitinya.grenes.data.location.Locations.country
 import me.ayitinya.grenes.di.dbModule
 import me.ayitinya.grenes.usersList
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
@@ -44,13 +44,12 @@ class TestUserDao : KoinTest {
                         city = user.location!!.city
                         country = user.location!!.country
                     } else null
-                    UserEntity.new {
-                        fullName = user.fullName
-                        email = user.email
-                        password = Hashers.getHexDigest("password")
-                        displayName = user.displayName
-                        createdAt = user.createdAt
-                        this.location = location
+                    UsersTable.insert {
+                        it[UsersTable.email] = user.email
+                        it[UsersTable.password] = Hashers.getHexDigest("password")
+                        it[UsersTable.displayName] = user.displayName
+                        it[UsersTable.createdAt] = user.createdAt
+                        it[UsersTable.location] = location?.id
                     }
                 }
 
@@ -76,14 +75,18 @@ class TestUserDao : KoinTest {
 
 
         runBlocking {
-            val user = sut.addNewUser(
-                fullName = fullName,
+            sut.createNewUserWithEmailAndPassword(
                 email = email,
-                password = password,
-                displayName = displayName,
-                locationId = location.id.value
+                password = password
             )
-            assertEquals(fullName, user.fullName)
+            val user = UsersTable.select { UsersTable.email eq email }.map {
+                User(
+                    uid = it[UsersTable.uid],
+                    displayName = it[UsersTable.displayName],
+                    email = it[UsersTable.email],
+                    createdAt = it[UsersTable.createdAt],
+                )
+            }.first()
             assertEquals(email, user.email)
             assertEquals(displayName, user.displayName)
         }

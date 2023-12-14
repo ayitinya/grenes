@@ -7,24 +7,22 @@ import java.util.UUID
 
 val usersList = listOf(
     User(
-        fullName = "Test User",
-        email = "william.henry.moody@my-own-personal-domain.com",
+        uid = UUID.randomUUID().toString(),
         displayName = "Test User",
+        email = "william.henry.moody@my-own-personal-domain.com",
+        createdAt = Clock.System.now(),
         location = Location(
             id = UUID.randomUUID().toString(), city = "Test Location", country = "Test Country"
         ),
-        createdAt = Clock.System.now(),
-        profileAvatar = null,
-        id = UUID.randomUUID().toString()
+        profileAvatar = null
     ), User(
-        fullName = "Test User",
-        email = "william.howard.taft@my-own-personal-domain.com",
+        uid = UUID.randomUUID().toString(),
         displayName = "Test User",
+        email = "william.howard.taft@my-own-personal-domain.com",
+        createdAt = Clock.System.now(),
         location = Location(
             id = UUID.randomUUID().toString(), city = "Test", country = "Test Country"
         ),
-        createdAt = Clock.System.now(),
-        profileAvatar = null,
-        id = UUID.randomUUID().toString()
+        profileAvatar = null
     )
 )

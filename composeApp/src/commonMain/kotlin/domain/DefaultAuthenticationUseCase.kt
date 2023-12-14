@@ -1,14 +1,13 @@
 package domain
 
-import data.users.remote.FirebaseUser
 import dev.gitlive.firebase.Firebase
-import dev.gitlive.firebase.auth.auth
-import dev.gitlive.firebase.auth.ActionCodeSettings
-import dev.gitlive.firebase.auth.AndroidPackageName
+import dev.gitlive.firebase.auth.*
 
 class DefaultAuthenticationUseCase : AuthenticationUseCase {
+    private val auth: FirebaseAuth = Firebase.auth
+
     override suspend fun getCurrentUser(): FirebaseUser? {
-        TODO("Not yet implemented")
+        return auth.currentUser
     }
 
 
@@ -23,24 +22,22 @@ class DefaultAuthenticationUseCase : AuthenticationUseCase {
         )
 
         try {
-            Firebase.auth.sendSignInLinkToEmail(email, actionCodeSettings)
+            auth.sendSignInLinkToEmail(email, actionCodeSettings)
             onEmailSent()
         } catch (e: Exception) {
             onError(e.message ?: "Unknown error")
         }
-
-
     }
 
     override suspend fun createUserWithEmailAndPassword(email: String, password: String) {
-        Firebase.auth.createUserWithEmailAndPassword(email, password)
+        auth.createUserWithEmailAndPassword(email, password)
     }
 
     override suspend fun signInWithEmailAndPassword(email: String, password: String) {
-        TODO("Not yet implemented")
+        auth.signInWithEmailAndPassword(email, password)
     }
 
     override suspend fun fetchSignInMethodsForEmail(email: String): List<String> {
-        return Firebase.auth.fetchSignInMethodsForEmail(email)
+        return auth.fetchSignInMethodsForEmail(email)
     }
 }
