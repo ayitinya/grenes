@@ -23,7 +23,7 @@ class DefaultUserUserChallengeNetworkDataSourceTest : KoinTest {
         val auth = Firebase.auth
         auth.useEmulator("10.0.2.2", 9099)
 
-        sut = DefaultUserNetworkDataSource(httpClient = get(), auth = auth)
+//        sut = DefaultUserNetworkDataSource(httpClient = get(), auth = auth)
 
 
     }
