@@ -17,8 +17,8 @@ import moe.tlaster.precompose.koin.koinViewModel
 fun AuthScreen(
     modifier: Modifier = Modifier,
     viewModel: AuthScreenViewModel = koinViewModel(AuthScreenViewModel::class),
-    signUp: (email: String) -> Unit,
-    login: () -> Unit,
+    navigateToOnboarding: () -> Unit,
+    navigateToFeed: () -> Unit,
     onBackButtonClick: () -> Unit,
 ) {
     val state = viewModel.uiState
@@ -94,7 +94,7 @@ fun AuthScreen(
                 contentPadding = PaddingValues(16.dp)
             ) {
                 Text(
-                    if (state.authFlowState is AuthFlowState.Idle) "Continue" else if (state.authFlowState is AuthFlowState.UserExist) "Login" else "Sign Up",
+                    if (state.authFlowState is AuthFlowState.Idle) "Continue" else if (state.authFlowState is AuthFlowState.UserExist) "Login" else "Continue",
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center
                 )
@@ -127,12 +127,15 @@ fun AuthScreen(
     LaunchedEffect(state.authFlowState) {
         when (state.authFlowState) {
             is AuthFlowState.UserLoggedIn -> {
-                login()
+                if ((state.authFlowState as AuthFlowState.UserLoggedIn).isSetupComplete) {
+                    navigateToFeed()
+                } else {
+                    navigateToOnboarding()
+                }
             }
 
-            is AuthFlowState.UserCreated -> {
-                signUp(state.email)
-            }
+            AuthFlowState.UserCreated -> navigateToOnboarding()
+
 
             AuthFlowState.EmailSent -> {}
             is AuthFlowState.Error -> TODO()

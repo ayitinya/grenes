@@ -17,7 +17,7 @@ sealed class AuthFlowState {
 
     data object UserCreated : AuthFlowState()
 
-    data object UserLoggedIn : AuthFlowState()
+    data class UserLoggedIn(val isSetupComplete: Boolean) : AuthFlowState()
 }
 
 @Stable

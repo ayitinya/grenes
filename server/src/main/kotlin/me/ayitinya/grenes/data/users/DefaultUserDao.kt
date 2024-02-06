@@ -1,23 +1,29 @@
 package me.ayitinya.grenes.data.users
 
-import kotlinx.datetime.Clock
+import io.ktor.util.logging.*
 import me.ayitinya.grenes.auth.Hashers.getHexDigest
 import me.ayitinya.grenes.data.Db
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import java.util.*
 
+
+internal val LOGGER = KtorSimpleLogger("com.example.RequestTracePlugin")
 
 class DefaultUserDao : UserDao {
 
     override suspend fun allUsers(): List<User> = Db.query {
         UsersTable.selectAll().map {
-            User(
-                uid = it[UsersTable.uid],
-                displayName = it[UsersTable.displayName],
-                email = it[UsersTable.email],
-                createdAt = it[UsersTable.createdAt],
-                location = null
-            )
+            it.toUser()
+//            User(
+//                uid = it[UsersTable.uid],
+//                username = it[UsersTable.username],
+//                displayName = it[UsersTable.displayName],
+//                email = it[UsersTable.email],
+//                createdAt = it[UsersTable.createdAt],
+//                city = it[UsersTable.city],
+//                country = it[UsersTable.country]
+//            )
         }
     }
 
@@ -27,37 +33,38 @@ class DefaultUserDao : UserDao {
                 if (it != null) {
                     UsersTable.update({ UsersTable.uid eq uid }) { updateStatement ->
                         updateStatement[displayName] = user.displayName
+                        updateStatement[username] = user.username
+                        updateStatement[city] = user.city
+                        updateStatement[country] = user.country
                     }
                 } else {
-                    UsersTable.insert { insertStatement ->
-                        insertStatement[UsersTable.uid] = uid
-                        insertStatement[displayName] = user.displayName
-                    }
+                    createNewUserWithUidAndEmail(uid = uid, email = user.email)
+                    updateUser(uid = uid, user = user) // risk of recursion
                 }
             }
         }
     }
 
-    override suspend fun createNewUserWithUidAndEmail(uid: String, email: String) {
-        Db.query {
-            UsersTable.insert {
+    override suspend fun createNewUserWithUidAndEmail(uid: String, email: String): Int {
+        return Db.query {
+            val insertStatement = UsersTable.insert {
                 it[UsersTable.email] = email
                 it[UsersTable.uid] = uid
-                it[createdAt] = Clock.System.now()
             }
+
+            insertStatement.insertedCount
         }
     }
 
 
     override suspend fun createNewUserWithEmailAndPassword(
-        email: String, password: String
+        userEmail: String, rawPassword: String
     ) {
         Db.query {
-
             UsersTable.insert {
-                it[UsersTable.email] = email
-                it[UsersTable.password] = getHexDigest(password)
-                it[createdAt] = Clock.System.now()
+                it[uid] = UUID.randomUUID().toString()
+                it[email] = userEmail
+                it[password] = getHexDigest(rawPassword)
             }
         }
     }
@@ -75,7 +82,9 @@ class DefaultUserDao : UserDao {
                 displayName = it[UsersTable.displayName],
                 email = it[UsersTable.email],
                 createdAt = it[UsersTable.createdAt],
-                location = null
+                city = it[UsersTable.city],
+                country = it[UsersTable.country],
+                profileAvatar = it[UsersTable.profileAvatar]
             )
         }
     }
@@ -87,7 +96,9 @@ class DefaultUserDao : UserDao {
                 displayName = it[UsersTable.displayName],
                 email = it[UsersTable.email],
                 createdAt = it[UsersTable.createdAt],
-                location = null
+                city = it[UsersTable.city],
+                country = it[UsersTable.country],
+                profileAvatar = it[UsersTable.profileAvatar]
             )
         }
     }

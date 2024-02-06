@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
+
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
@@ -5,6 +8,7 @@ plugins {
 }
 
 kotlin {
+
     iosX64()
     iosArm64()
     iosSimulatorArm64()
@@ -26,6 +30,14 @@ kotlin {
 
             implementation(libs.insert.koin.koin.core)
             // put your Multiplatform dependencies here
+
+//            implementation(libs.ktor.server.resources)
+            implementation(libs.ktor.client.resources)
+
+            api(libs.kotlinx.serialization.json)
+
+            api("io.github.aakira:napier:2.7.1")
+
         }
     }
 }

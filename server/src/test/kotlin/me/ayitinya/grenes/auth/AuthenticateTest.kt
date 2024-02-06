@@ -3,7 +3,7 @@ package me.ayitinya.grenes.auth
 import com.auth0.jwk.JwkProviderBuilder
 import kotlinx.coroutines.runBlocking
 import me.ayitinya.grenes.data.Db
-import me.ayitinya.grenes.data.location.LocationDao
+//import me.ayitinya.grenes.data.location.LocationDao
 import me.ayitinya.grenes.data.users.UserDao
 import me.ayitinya.grenes.di.dbModule
 import me.ayitinya.grenes.usersList
@@ -32,7 +32,7 @@ class AuthenticateTest : KoinTest {
 
     private lateinit var database: Db
     private val userDao: UserDao by inject()
-    private val locationDao: LocationDao by inject()
+//    private val locationDao: LocationDao by inject()
 
     private var currentTest = Random.nextInt()
 
@@ -48,8 +48,8 @@ class AuthenticateTest : KoinTest {
         runBlocking {
 
                 userDao.createNewUserWithEmailAndPassword(
-                    email = user.email,
-                    password = "password",
+                    userEmail = user.email,
+                    rawPassword = "password",
                 )
             }
 

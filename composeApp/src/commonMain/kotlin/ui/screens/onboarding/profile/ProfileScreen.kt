@@ -2,8 +2,6 @@ package ui.screens.onboarding.profile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowLeft
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -16,14 +14,12 @@ import moe.tlaster.precompose.koin.koinViewModel
 @Composable
 fun ProfileScreen(
     modifier: Modifier = Modifier,
-    email: String? = null,
+    viewModel: OnboardingProfileScreenViewModel = koinViewModel(OnboardingProfileScreenViewModel::class),
     onSave: () -> Unit,
-    viewModel: ProfileScreenViewModel = koinViewModel(ProfileScreenViewModel::class)
 ) {
     val uiState by viewModel.uiState.collectAsState()
     ProfileScreen(
         modifier,
-        email ?: "",
         uiState.country,
         uiState.city,
         uiState.displayName,
@@ -31,7 +27,7 @@ fun ProfileScreen(
         viewModel::updateCity,
         viewModel::updateCountry
     ) {
-        viewModel.updateProfile()
+        viewModel.createUserProfile()
         onSave()
     }
 }
@@ -40,7 +36,6 @@ fun ProfileScreen(
 @Composable
 private fun ProfileScreen(
     modifier: Modifier = Modifier,
-    email: String,
     country: String,
     city: String,
     displayName: String,
@@ -63,13 +58,6 @@ private fun ProfileScreen(
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
-                    enabled = false,
-                    value = email,
-                    onValueChange = {},
-                    label = { Text("Email") },
-                    modifier = Modifier.fillMaxWidth()
-                )
 
                 OutlinedTextField(
                     value = displayName,

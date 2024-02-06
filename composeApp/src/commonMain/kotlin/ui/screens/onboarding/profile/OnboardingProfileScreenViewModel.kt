@@ -1,15 +1,22 @@
 package ui.screens.onboarding.profile
 
+import data.app.AppPreferences
+import data.auth.AuthRepository
 import data.users.UsersRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
 
-class ProfileScreenViewModel(private val usersRepository: UsersRepository) : ViewModel() {
+class OnboardingProfileScreenViewModel(
+    private val usersRepository: UsersRepository,
+    private val authRepository: AuthRepository,
+    private val appPreferences: AppPreferences
+) : ViewModel() {
     private val _uiState: MutableStateFlow<ProfileScreenState> =
         MutableStateFlow(ProfileScreenState(displayName = "", city = "", country = ""))
     val uiState: StateFlow<ProfileScreenState> = _uiState
@@ -26,13 +33,21 @@ class ProfileScreenViewModel(private val usersRepository: UsersRepository) : Vie
         _uiState.value = _uiState.value.copy(country = country)
     }
 
-    fun updateProfile() {
+    fun createUserProfile() {
         viewModelScope.launch(Dispatchers.IO) {
-            usersRepository.updateProfile(
-                _uiState.value.displayName,
-                _uiState.value.city,
-                _uiState.value.country
-            )
+            authRepository.getCurrentUser().take(1).collect { firebaseUser ->
+                if (firebaseUser != null) {
+                    usersRepository.createProfile(
+                        firebaseUser.uid,
+                        firebaseUser.email ?: "",
+                        firebaseUser.photoURL,
+                        _uiState.value.displayName,
+                        _uiState.value.city,
+                        _uiState.value.country
+                    )
+                }
+                appPreferences.setIsOnBoardingComplete(true)
+            }
         }
     }
 }

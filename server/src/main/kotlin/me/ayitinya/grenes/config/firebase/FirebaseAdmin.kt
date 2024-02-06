@@ -5,15 +5,14 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import java.io.InputStream
 
-object FirebaseAdmin {
-    private val serviceAccount: InputStream? =
+class FirebaseAdmin {
+    private val serviceAccount =
         this::class.java.classLoader?.getResourceAsStream("grenes-1759f-firebase-adminsdk-xz2uv-c31b7f9b75.json")
-
-    private val options: FirebaseOptions = FirebaseOptions.builder().setCredentials(
-        GoogleCredentials.fromStream(
-            serviceAccount
-        )
+    private val options = FirebaseOptions.builder().setCredentials(
+        GoogleCredentials.fromStream(serviceAccount)
     ).build()
 
-    fun init(): FirebaseApp = FirebaseApp.initializeApp(options)
+    init {
+        FirebaseApp.initializeApp(options)
+    }
 }

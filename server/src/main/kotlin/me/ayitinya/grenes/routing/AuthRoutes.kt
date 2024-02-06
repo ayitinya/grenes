@@ -1,21 +1,20 @@
 package me.ayitinya.grenes.routing
 
 import com.auth0.jwk.JwkProvider
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.call
-import io.ktor.server.request.receive
-import io.ktor.server.response.respond
-import io.ktor.server.routing.Route
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.request.*
 import io.ktor.server.resources.post
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import me.ayitinya.grenes.auth.AuthStates
 import me.ayitinya.grenes.auth.authenticateUser
 import me.ayitinya.grenes.auth.jwtToken
 import me.ayitinya.grenes.data.users.UserDao
-import me.ayitinya.grenes.routing.resources.AuthResource
 import org.koin.ktor.ext.inject
-import java.util.UUID
+import java.util.*
 
 @Serializable
 data class LoginDetails(val email: String, val password: String)
@@ -75,8 +74,8 @@ internal fun Route.authRoutes(
             val userDetails = call.receive<RegistrationDetails>()
 
             userDao.createNewUserWithEmailAndPassword(
-                email = userDetails.email,
-                password = userDetails.password
+                userEmail = userDetails.email,
+                rawPassword = userDetails.password
             )
 
             val jwtToken = jwtToken(

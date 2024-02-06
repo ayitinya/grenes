@@ -11,9 +11,9 @@ interface UserDao {
 
     suspend fun getUserByEmail(email: String): User?
 
-    suspend fun createNewUserWithUidAndEmail(uid: String, email: String)
+    suspend fun createNewUserWithUidAndEmail(uid: String, email: String): Int
 
     suspend fun createNewUserWithEmailAndPassword(
-        email: String, password: String,
+        userEmail: String, rawPassword: String,
     )
 }

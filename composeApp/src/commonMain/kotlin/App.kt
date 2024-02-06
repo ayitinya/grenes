@@ -1,4 +1,6 @@
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import di.commonModules
 import moe.tlaster.precompose.PreComposeApp
 import navigation.Nav
@@ -12,7 +14,7 @@ fun App(useDarkTheme: Boolean = true, dynamicColor: Boolean = false) {
     }) {
         PreComposeApp {
             AppTheme(dynamicColor = dynamicColor, useDarkTheme = useDarkTheme) {
-                Nav()
+                Nav(modifier = Modifier.fillMaxSize())
             }
         }
     }

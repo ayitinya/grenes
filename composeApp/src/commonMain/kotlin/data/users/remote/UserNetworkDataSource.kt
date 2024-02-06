@@ -1,12 +1,13 @@
-package data.users
+package data.users.remote
 
 import me.ayitinya.grenes.data.users.User
 
-interface UsersRepository {
+interface UserNetworkDataSource {
 
     suspend fun getUser(uid: String): User?
 
-    suspend fun getUser(): User?
+
+    suspend fun getCurrentUser(): User?
 
     suspend fun createUserWithEmailAndPassword(
         email: String,
@@ -34,5 +35,4 @@ interface UsersRepository {
         city: String,
         country: String
     )
-
 }

@@ -1,43 +1,64 @@
 package di
 
+import dev.gitlive.firebase.auth.FirebaseAuth
 import io.ktor.client.*
 import io.ktor.client.plugins.*
-import io.ktor.client.plugins.auth.*
-import io.ktor.client.plugins.auth.providers.*
+import io.ktor.client.plugins.cache.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import org.koin.dsl.module
 
 val httpClientModule = module {
-    single {
+    single(createdAtStart = true) {
         HttpClient {
+            expectSuccess = true
+
+            val firebase: FirebaseAuth = get()
+
             install(Logging) {
                 logger = Logger.DEFAULT
                 level = LogLevel.ALL
             }
 
+            install(HttpCache)
+
             install(DefaultRequest) {
                 header("Content-Type", "application/json")
+
                 url {
                     protocol = URLProtocol.HTTP
                     port = 8080
                     host = "10.0.2.2"
                 }
+
+                if (firebase.currentUser != null) {
+                    try {
+                        runBlocking {
+                            val token = firebase.currentUser!!.getIdToken(forceRefresh = true)
+                            header(
+                                "Authorization", "Bearer $token"
+                            )
+                        }
+                    } catch (e: Exception) {
+                        println("Error ${e.message} ${e.cause}")
+                        println("Error $e")
+                        e.printStackTrace()
+                        throw Exception("Error getting token")
+                    }
+                }
+
             }
 
 //            install(HttpRequestRetry) {
 //                retryOnServerErrors(maxRetries = 5)
 //                exponentialDelay()
 //            }
-
-            install(Auth) {
-                bearer { }
-            }
 
             install(Resources)
 

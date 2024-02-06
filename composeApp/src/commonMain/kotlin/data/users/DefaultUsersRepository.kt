@@ -1,13 +1,74 @@
 package data.users
 
-import data.users.remote.NetworkDataSource
+import data.users.remote.UserNetworkDataSource
+import me.ayitinya.grenes.data.users.User
 
-class DefaultUsersRepository(private val networkDataSource: NetworkDataSource) : UsersRepository {
-    override suspend fun createUserWithEmailAndPassword(email: String, password: String) {
-        networkDataSource.createUserWithEmailAndPassword(email = email, password = password)
+class DefaultUsersRepository(private val userNetworkDataSource: UserNetworkDataSource) : UsersRepository {
+    override suspend fun getUser(uid: String): User? {
+        return userNetworkDataSource.getUser(uid)
     }
 
-    override suspend fun updateProfile(displayName: String, city: String, country: String) {
-        networkDataSource.updateProfile(displayName = displayName, city = city, country = country)
+    override suspend fun getUser(): User? {
+        try {
+            return userNetworkDataSource.getCurrentUser()
+        } catch (e: Exception) {
+            println("Error: ${e.message} - ${e.cause}")
+            e.printStackTrace()
+            throw e
+        }
+    }
+
+    override suspend fun createUserWithEmailAndPassword(
+        email: String,
+        password: String,
+        token: String,
+        uid: String,
+        displayName: String?,
+        profileAvatar: String?,
+    ) {
+        userNetworkDataSource.createUserWithEmailAndPassword(
+            email = email,
+            password = password,
+            token = token,
+            uid = uid,
+            displayName = displayName,
+            profileAvatar = profileAvatar
+        )
+    }
+
+    override suspend fun updateProfile(
+        uid: String,
+        email: String,
+        photoUrl: String?,
+        displayName: String,
+        city: String,
+        country: String
+    ) {
+        userNetworkDataSource.updateProfile(
+            uid = uid,
+            email = email,
+            photoUrl = photoUrl,
+            displayName = displayName,
+            city = city,
+            country = country
+        )
+    }
+
+    override suspend fun createProfile(
+        uid: String,
+        email: String,
+        photoUrl: String?,
+        displayName: String,
+        city: String,
+        country: String
+    ) {
+        userNetworkDataSource.createProfile(
+            uid = uid,
+            email = email,
+            photoUrl = photoUrl,
+            displayName = displayName,
+            city = city,
+            country = country
+        )
     }
 }

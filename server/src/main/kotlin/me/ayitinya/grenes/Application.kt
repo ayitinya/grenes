@@ -13,6 +13,7 @@ import me.ayitinya.grenes.plugins.configureRequestValidation
 import me.ayitinya.grenes.plugins.configureRouting
 import me.ayitinya.grenes.plugins.configureSerialization
 import org.jetbrains.exposed.sql.transactions.TransactionManager
+import org.koin.ktor.ext.get
 import org.koin.ktor.ext.inject
 import org.koin.ktor.plugin.Koin
 import org.koin.ktor.plugin.KoinApplicationStarted
@@ -23,7 +24,6 @@ import org.koin.logger.slf4jLogger
 fun main(args: Array<String>): Unit = EngineMain.main(args)
 
 fun Application.di() {
-    FirebaseAdmin.init()
 
     install(Koin) {
         slf4jLogger()

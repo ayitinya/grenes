@@ -60,6 +60,7 @@ dependencies {
 
     implementation(libs.firebase.admin)
     implementation(libs.guava)
+    testImplementation("io.ktor:ktor-server-test-host-jvm:2.3.7")
 }
 
 tasks.test {

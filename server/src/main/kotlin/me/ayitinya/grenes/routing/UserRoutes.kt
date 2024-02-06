@@ -5,18 +5,20 @@ import com.google.firebase.auth.UserRecord.UpdateRequest
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.resources.*
 import io.ktor.server.resources.post
 import io.ktor.server.response.*
 import io.ktor.server.routing.Route
+import io.ktor.util.logging.*
 import me.ayitinya.grenes.auth.firebase.FIREBASE_AUTH
 import me.ayitinya.grenes.auth.firebase.FirebaseUserPrincipal
+import me.ayitinya.grenes.data.Db
 import me.ayitinya.grenes.data.users.User
 import me.ayitinya.grenes.data.users.UserDao
-import me.ayitinya.grenes.routing.resources.UsersResource
 import org.koin.ktor.ext.inject
+
+//internal val LOGGER = KtorSimpleLogger("UserRoutes")
 
 fun Route.userRoutes() {
     val userDao by inject<UserDao>()
@@ -32,18 +34,15 @@ fun Route.userRoutes() {
         }
     }
 
-    authenticate("auth-jwt", FIREBASE_AUTH) {
+    authenticate(FIREBASE_AUTH) {
         get<UsersResource.SessionUserDetails> {
-            this.context.authentication.principal<JWTPrincipal>()?.let { principal ->
-                val username = principal.payload.getClaim("email").asString()
-                val expiresAt = principal.expiresAt?.time?.minus(System.currentTimeMillis())
-                call.respondText("Hello, $username! Token is expired at $expiresAt ms.")
-                return@get
-            }
+            this.context.authentication.principal<FirebaseUserPrincipal>()?.let { principal ->
 
-//            this.context.authentication.principal<UserPrincipal>()?.let { principal ->
-//                call.respond(mapOf("user" to principal))
-//            }
+                val user = userDao.getUserById(uid = principal.uid)
+
+                if (user == null) call.respond(HttpStatusCode.NotFound)
+                else call.respond(user)
+            }
         }
     }
 
@@ -72,11 +71,39 @@ fun Route.userRoutes() {
             this.context.authentication.principal<FirebaseUserPrincipal>()?.let { principal ->
                 try {
                     val user = call.receive<User>()
+                    Db.query {
+                        userDao.createNewUserWithUidAndEmail(principal.uid, user.email)
+                        userDao.updateUser(principal.uid, user)
+                    }
+
+                    val updateRequest =
+                        UpdateRequest(principal.uid).setDisplayName(user.displayName).setPhotoUrl(user.profileAvatar)
+                    FirebaseAuth.getInstance().updateUser(updateRequest)
+
+                    call.respond(HttpStatusCode.OK)
+
+                } catch (exception: Exception) {
+                    println(exception)
+                    exception.printStackTrace()
+                    call.respond(HttpStatusCode.InternalServerError)
+                }
+            }
+        }
+    }
+
+    authenticate(FIREBASE_AUTH) {
+        put<UsersResource.SessionUserDetails> {
+            this.context.authentication.principal<FirebaseUserPrincipal>()?.let { principal ->
+                try {
+                    val user = call.receive<User>()
                     userDao.updateUser(principal.uid, user)
 
-                    val updateRequest = UpdateRequest(principal.uid).setDisplayName(user.displayName)
-                        .setPhotoUrl(user.profileAvatar)
+                    val updateRequest =
+                        UpdateRequest(principal.uid).setDisplayName(user.displayName).setPhotoUrl(user.profileAvatar)
                     FirebaseAuth.getInstance().updateUser(updateRequest)
+
+                    call.respond(HttpStatusCode.OK)
+
                 } catch (exception: Exception) {
                     println(exception)
                     exception.printStackTrace()

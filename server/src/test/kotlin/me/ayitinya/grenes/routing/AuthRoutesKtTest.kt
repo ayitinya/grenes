@@ -14,11 +14,9 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import me.ayitinya.grenes.data.Db
 import me.ayitinya.grenes.data.users.UserDao
-import me.ayitinya.grenes.data.users.UsersTable
 import me.ayitinya.grenes.di.dbModule
 import me.ayitinya.grenes.server.resources.Token
 import org.jetbrains.exposed.sql.transactions.TransactionManager
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -86,8 +84,8 @@ class AuthRoutesKtTest : KoinTest {
 
         runBlocking {
             userDao.createNewUserWithEmailAndPassword(
-                email = "john.c.breckinridge@altostrat.com",
-                password = "password"
+                userEmail = "john.c.breckinridge@altostrat.com",
+                rawPassword = "password"
             )
 
             client.post("/auth/login") {
@@ -124,8 +122,8 @@ class AuthRoutesKtTest : KoinTest {
 
         runBlocking {
             userDao.createNewUserWithEmailAndPassword(
-                email = "john.c.breckinridge@altostrat.com",
-                password = "password"
+                userEmail = "john.c.breckinridge@altostrat.com",
+                rawPassword = "password"
             )
 
             client.post("/auth/login") {

@@ -1,7 +1,9 @@
 package me.ayitinya.grenes.data
 
 import kotlinx.coroutines.Dispatchers
-import me.ayitinya.grenes.data.location.Locations
+import me.ayitinya.grenes.data.challenges.ChallengeTypeChallenges
+import me.ayitinya.grenes.data.challenges.ChallengeTypes
+import me.ayitinya.grenes.data.challenges.Challenges
 import me.ayitinya.grenes.data.media.MediaTable
 import me.ayitinya.grenes.data.users.UsersTable
 import org.jetbrains.exposed.sql.Database
@@ -18,7 +20,7 @@ internal class Db(driverClassName: String, jdbcURL: String) {
         transaction(database) {
             addLogger(StdOutSqlLogger)
 
-            SchemaUtils.create(UsersTable, Locations, MediaTable)
+            SchemaUtils.create(UsersTable, MediaTable, ChallengeTypes, Challenges, ChallengeTypeChallenges)
         }
     }
 

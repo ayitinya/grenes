@@ -6,6 +6,11 @@ import org.koin.dsl.module
 
 val useCaseModule = module {
     single<AuthenticationUseCase> {
-        DefaultAuthenticationUseCase()
+        DefaultAuthenticationUseCase(
+            appPreferences = get(),
+            authRepository = get(),
+            usersRepository = get(),
+            httpClient = get()
+        )
     }
 }

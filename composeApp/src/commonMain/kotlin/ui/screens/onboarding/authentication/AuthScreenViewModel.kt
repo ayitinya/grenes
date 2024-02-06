@@ -1,13 +1,16 @@
 package ui.screens.onboarding.authentication
 
-import data.users.UsersRepository
+import data.app.AppPreferences
 import domain.AuthenticationUseCase
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
 
 
-class AuthScreenViewModel(private val usersRepository: UsersRepository, private val authenticationUseCase: AuthenticationUseCase) : ViewModel() {
+class AuthScreenViewModel(
+    private val authenticationUseCase: AuthenticationUseCase,
+    private val appPreferences: AppPreferences
+) : ViewModel() {
     private val _uiState = MutableUiState()
     val uiState: UiState = _uiState
 
@@ -20,10 +23,10 @@ class AuthScreenViewModel(private val usersRepository: UsersRepository, private 
     }
 
 
-//    suspend fun sendSignInLinkToEmail(email: String) {
+//    suspend fun sendSignInLinkToEmail(uid: String) {
 //        _uiState.authFlowState = AuthFlowState.Loading
 //
-//        authenticationUseCase.sendSignInLinkToEmail(email = email, onEmailSent = {
+//        authenticationUseCase.sendSignInLinkToEmail(uid = uid, onEmailSent = {
 //            _uiState.authFlowState = AuthFlowState.EmailSent
 //        }, onError = { error ->
 //            _uiState.authFlowState = AuthFlowState.Error(error)
@@ -48,9 +51,9 @@ class AuthScreenViewModel(private val usersRepository: UsersRepository, private 
         viewModelScope.launch {
             try {
                 authenticationUseCase.signInWithEmailAndPassword(email = uiState.email, password = uiState.password)
-                _uiState.authFlowState = AuthFlowState.UserLoggedIn
+                _uiState.authFlowState = AuthFlowState.UserLoggedIn(appPreferences.getIsOnboardingComplete())
             } catch (exception: Exception) {
-                _uiState.authFlowState = AuthFlowState.Error(exception.message ?: "Unknown Error")
+                _uiState.authFlowState = AuthFlowState.Error(exception.message ?: "Anonymous Error")
             }
         }
     }
@@ -58,11 +61,11 @@ class AuthScreenViewModel(private val usersRepository: UsersRepository, private 
     fun createUserWithEmailAndPassword() {
         viewModelScope.launch {
             try {
-                usersRepository.createUserWithEmailAndPassword(email = uiState.email, password = uiState.password)
+                authenticationUseCase.createUserWithEmailAndPassword(email = uiState.email, password = uiState.password)
                 _uiState.authFlowState = AuthFlowState.UserCreated
             } catch (exception: Exception) {
                 println(exception.message)
-                _uiState.authFlowState = AuthFlowState.Error(exception.message ?: "Unknown Error")
+                _uiState.authFlowState = AuthFlowState.Error(exception.message ?: "Anonymous Error")
             }
         }
     }

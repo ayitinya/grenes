@@ -12,6 +12,7 @@ import java.util.UUID
 enum class FileTypes {
     IMAGE,
     VIDEO,
+    AUDIO
 }
 
 object MediaTable : UUIDTable() {
