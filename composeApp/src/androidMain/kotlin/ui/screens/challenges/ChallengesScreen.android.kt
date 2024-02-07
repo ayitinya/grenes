@@ -7,7 +7,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @Preview
 @Composable
 private fun ChallengesScreenPreview() {
-    ChallengesScreenUi(modifier = Modifier, selectedTabIndex = 0, onTabSelected = {})
+//    ChallengesScreenUi(modifier = Modifier, selectedTabIndex = 0, onTabSelected = {})
 }
 
 @Preview

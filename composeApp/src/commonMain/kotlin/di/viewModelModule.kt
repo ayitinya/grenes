@@ -2,6 +2,7 @@ package di
 
 import navigation.SharedViewModel
 import org.koin.dsl.module
+import ui.screens.challengedetails.ChallengeDetailViewModel
 import ui.screens.challenges.ChallengesViewModel
 import ui.screens.home.HomeViewModel
 import ui.screens.onboarding.authentication.AuthScreenViewModel
@@ -31,5 +32,9 @@ val viewModelModule = module {
 
     factory {
         ChallengesViewModel(challengesRepository = get())
+    }
+
+    factory { params ->
+        ChallengeDetailViewModel(challengesRepository = get(), uid = params.get())
     }
 }

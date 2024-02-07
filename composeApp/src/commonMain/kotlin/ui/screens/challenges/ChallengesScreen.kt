@@ -22,6 +22,7 @@ import moe.tlaster.precompose.koin.koinViewModel
 
 @Composable
 fun ChallengesScreenUi(
+    navigateToChallengeDetails: (String) -> Unit,
     modifier: Modifier = Modifier, viewModel: ChallengesViewModel = koinViewModel(ChallengesViewModel::class)
 ) {
     val uiState = viewModel.uiState.collectAsState()
@@ -29,6 +30,7 @@ fun ChallengesScreenUi(
     ChallengesScreenUi(
         dailyChallenges = uiState.value.dailyChallenges,
         monthlyChallenges = uiState.value.monthlyChallenges,
+        navigateToChallengeDetails = navigateToChallengeDetails,
         modifier = modifier,
         selectedTabIndex = uiState.value.selectedTabIndex,
         onTabSelected = { viewModel.onTabSelected(it) })
@@ -38,6 +40,7 @@ fun ChallengesScreenUi(
 internal fun ChallengesScreenUi(
     dailyChallenges: List<Challenge> = emptyList(),
     monthlyChallenges: List<Challenge> = emptyList(),
+    navigateToChallengeDetails: (String) -> Unit,
     modifier: Modifier, selectedTabIndex: Int, onTabSelected: (Int) -> Unit
 ) {
     Scaffold(modifier = modifier, topBar = {
@@ -54,6 +57,7 @@ internal fun ChallengesScreenUi(
             0 -> ChallengesTab(
                 dailyChallenges = dailyChallenges,
                 monthlyChallenges = monthlyChallenges,
+                navigateToChallengeDetails = navigateToChallengeDetails,
                 modifier = Modifier.padding(paddingValues = it).fillMaxWidth()
             )
 
@@ -79,6 +83,7 @@ internal fun ChallengesScreenUi(
 private fun ChallengesTab(
     dailyChallenges: List<Challenge>,
     monthlyChallenges: List<Challenge>,
+    navigateToChallengeDetails: (String) -> Unit,
     modifier: Modifier = Modifier.fillMaxWidth()
 ) {
     Column(
@@ -116,7 +121,7 @@ private fun ChallengesTab(
                 ).fillMaxWidth(),
             ) {
                 items(dailyChallenges) { challenge ->
-                    DailyChallenge(challenge = challenge)
+                    DailyChallenge(challenge = challenge, onChallengeClick = navigateToChallengeDetails)
                     Divider(modifier = Modifier.fillMaxWidth())
                 }
             }
@@ -125,9 +130,9 @@ private fun ChallengesTab(
 }
 
 @Composable
-internal fun DailyChallenge(challenge: Challenge) {
+internal fun DailyChallenge(challenge: Challenge, onChallengeClick: (String) -> Unit = {}) {
     ListItem(
-        modifier = Modifier.clickable { },
+        modifier = Modifier.clickable { onChallengeClick(challenge.uid) },
         leadingContent = { Text("Image") },
         headlineContent = { Text(challenge.title) },
     )

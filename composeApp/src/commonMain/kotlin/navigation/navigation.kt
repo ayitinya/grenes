@@ -12,6 +12,7 @@ import moe.tlaster.precompose.navigation.NavHost
 import moe.tlaster.precompose.navigation.path
 import moe.tlaster.precompose.navigation.rememberNavigator
 import moe.tlaster.precompose.navigation.transition.NavTransition
+import ui.screens.challengedetails.ChallengeDetailScreen
 import ui.screens.challenges.ChallengesScreenUi
 import ui.screens.home.HomeScreenUi
 import ui.screens.onboarding.LandingScreenUi
@@ -39,6 +40,7 @@ fun Nav(
     } else {
         val initialRoute: String = when (state.value.authState) {
             AuthState.Anonymous -> Screens.MainNavigation.Feed.path
+
             is AuthState.Authenticated -> {
                 if (state.value.setupComplete) {
                     Screens.MainNavigation.Feed.path
@@ -46,6 +48,8 @@ fun Nav(
             }
 
             AuthState.NotAuthenticated -> Screens.Onboarding.Landing.path
+
+            else -> ""
         }
 
         Scaffold(bottomBar = {
@@ -57,22 +61,29 @@ fun Nav(
                     "onboarding"
                 ) == false
             ) {
-                NavigationBar {
-                    Screens.navScreens.forEach { screen ->
-                        NavigationBarItem(icon = {
-                            Icon(
-                                imageVector = screen.icon, contentDescription = screen.label
-                            )
-                        }, label = { Text(screen.label) }, selected = currentDestination == screen.path, onClick = {
-                            if (currentDestination != screen.path) {
-                                navigator.navigate(
-                                    route = if (screen is Screens.MainNavigation.Profile) {
-                                        Screens.MainNavigation.profileRoute()
-                                    } else
-                                        screen.path
+
+                val isMainNavigationRoute = Screens.navScreens.any { it.path == currentDestination }
+
+
+
+                if (isMainNavigationRoute) {
+                    NavigationBar {
+                        Screens.navScreens.forEach { screen ->
+                            NavigationBarItem(icon = {
+                                Icon(
+                                    imageVector = screen.icon, contentDescription = screen.label
                                 )
-                            }
-                        })
+                            }, label = { Text(screen.label) }, selected = currentDestination == screen.path, onClick = {
+                                if (currentDestination != screen.path) {
+                                    navigator.navigate(
+                                        route = if (screen is Screens.MainNavigation.Profile) {
+                                            Screens.MainNavigation.profileRoute()
+                                        } else
+                                            screen.path
+                                    )
+                                }
+                            })
+                        }
                     }
                 }
             }
@@ -121,7 +132,21 @@ fun Nav(
                 }
 
                 scene(Screens.MainNavigation.Challenges.path) {
-                    ChallengesScreenUi(modifier = Modifier.fillMaxSize())
+                    ChallengesScreenUi(modifier = Modifier.fillMaxSize(), navigateToChallengeDetails = {
+                        navigator.navigate(Screens.ChallengeDetail.path.replace("{uid}", it))
+                    })
+                }
+
+                scene(Screens.ChallengeDetail.path) { backStackEntry ->
+                    val uid: String? = backStackEntry.path<String>("uid")
+
+                    uid?.let {
+                        ChallengeDetailScreen(
+                            uid = uid,
+                            modifier = Modifier.fillMaxSize(),
+                            navigateBack = navigator::goBack
+                        )
+                    }
                 }
             }
         }

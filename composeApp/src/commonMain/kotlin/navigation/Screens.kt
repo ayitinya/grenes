@@ -49,4 +49,6 @@ sealed class Screens(val path: String) {
         val navScreens: List<MainNavigation>
             get() = Initializer.navScreens
     }
+
+    data object ChallengeDetail : Screens("challenge/{uid}")
 }
