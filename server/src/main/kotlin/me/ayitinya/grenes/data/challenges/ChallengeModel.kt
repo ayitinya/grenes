@@ -23,6 +23,8 @@ internal object ChallengeTypes : UUIDTable() {
     }
 }
 
+
+
 internal object Challenges : UUIDTable() {
     val title = varchar("title", 255)
     val description = text("description", eagerLoading = true)
@@ -34,6 +36,8 @@ internal object Challenges : UUIDTable() {
     val endDate = timestamp("endDate").nullable()
 
     val isActive = bool("isActive").default(false)
+    val isTrackable = bool("isTrackable").default(false)
+    val difficulty = enumerationByName("difficulty", 10, ChallengeDifficulty::class)
 }
 
 internal object ChallengeTypeChallenges : UUIDTable() {
@@ -69,6 +73,8 @@ fun ResultRow.toChallenge(
         challengeTypes = challengeTypes,
         startAt = this[Challenges.startDate],
         endAt = this[Challenges.endDate],
-        isActive = this[Challenges.isActive]
+        isActive = this[Challenges.isActive],
+        isTrackable = this[Challenges.isTrackable],
+        difficulty = this[Challenges.difficulty]
     )
 }

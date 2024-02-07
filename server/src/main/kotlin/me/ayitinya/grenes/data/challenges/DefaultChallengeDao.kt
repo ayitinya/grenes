@@ -72,6 +72,10 @@ class DefaultChallengeDao : ChallengeDao {
         ChallengeTypes.selectAll().map { it.toChallengeType() }
     }
 
+    override suspend fun deleteChallengeType(uid: UUID): Int = Db.query {
+        ChallengeTypes.deleteWhere { ChallengeTypes.id eq uid }
+    }
+
     override suspend fun read(uid: UUID): Challenge? {
         return Db.query {
             return@query Challenges.select { Challenges.id eq uid }.singleOrNull()?.let {
@@ -113,40 +117,6 @@ class DefaultChallengeDao : ChallengeDao {
         }
     }
 
-
-    override suspend fun readByType(type: UUID): List<Challenge> = Db.query {
-        ChallengeTypeChallenges.select { ChallengeTypeChallenges.challengeType eq type }.map {
-            val challenge = Challenges.select { Challenges.id eq it[ChallengeTypeChallenges.challenge] }.single()
-            val challengeType =
-                ChallengeTypes.select { ChallengeTypes.id eq it[ChallengeTypeChallenges.challengeType] }.single()
-                    .toChallengeType()
-            return@map challenge.toChallenge(challengeTypes = listOf(challengeType))
-        }
-    }
-
-    override suspend fun readByTypeAndSuggestedBy(type: UUID, suggestedBy: String): List<Challenge> = Db.query {
-        ChallengeTypeChallenges.select {
-            ChallengeTypeChallenges.challengeType eq type and (Challenges.suggestedBy eq suggestedBy)
-        }.map {
-            val challenge = Challenges.select { Challenges.id eq it[ChallengeTypeChallenges.challenge] }.single()
-            val challengeType =
-                ChallengeTypes.select { ChallengeTypes.id eq it[ChallengeTypeChallenges.challengeType] }.single()
-                    .toChallengeType()
-            return@map challenge.toChallenge(challengeTypes = listOf(challengeType))
-        }
-    }
-
-    override suspend fun readBySuggestedBy(suggestedBy: String): List<Challenge> = Db.query {
-        return@query Challenges.select { Challenges.suggestedBy eq suggestedBy }.map {
-            val challengeTypes =
-                ChallengeTypeChallenges.select { ChallengeTypeChallenges.challenge eq it[Challenges.id] }.map {
-                    ChallengeTypes.select { ChallengeTypes.id eq it[ChallengeTypeChallenges.challengeType] }.single()
-                        .toChallengeType()
-                }
-            return@map it.toChallenge(challengeTypes = challengeTypes)
-        }
-    }
-
     override suspend fun update(uid: UUID, challenge: Challenge): Int = try {
         Db.query {
             ChallengeTypeChallenges.deleteWhere { ChallengeTypeChallenges.challenge eq uid }
@@ -162,6 +132,8 @@ class DefaultChallengeDao : ChallengeDao {
                 it[startDate] = challenge.startAt
                 it[endDate] = challenge.endAt
                 it[isActive] = challenge.isActive
+                it[isTrackable] = challenge.isTrackable
+                it[difficulty] = challenge.difficulty
             }
         }
     } catch (e: Exception) {

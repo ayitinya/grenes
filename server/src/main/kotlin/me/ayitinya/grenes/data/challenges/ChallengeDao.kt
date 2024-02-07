@@ -17,6 +17,8 @@ interface ChallengeDao {
 
     suspend fun getAllChallengeTypes(): List<ChallengeType>
 
+    suspend fun deleteChallengeType(uid: UUID): Int
+
     suspend fun read(uid: UUID): Challenge?
 
     suspend fun read(
@@ -25,12 +27,6 @@ interface ChallengeDao {
         suggestedBy: String? = null,
         isActive: Boolean? = null
     ): List<Challenge>
-
-    suspend fun readByType(type: UUID): List<Challenge>
-
-    suspend fun readBySuggestedBy(suggestedBy: String): List<Challenge>
-
-    suspend fun readByTypeAndSuggestedBy(type: UUID, suggestedBy: String): List<Challenge>
 
     suspend fun update(uid: UUID, challenge: Challenge): Int
 

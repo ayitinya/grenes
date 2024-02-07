@@ -12,6 +12,11 @@ import me.ayitinya.grenes.data.users.User
 * Accessors would assume the fields are not null
 * And NPEs would be thrown
  */
+
+enum class ChallengeDifficulty {
+    EASY, MEDIUM, HARD
+}
+
 @Serializable
 data class ChallengeCreation(
     val title: String,
@@ -36,4 +41,6 @@ data class Challenge(
     val startAt: Instant? = null,
     val endAt: Instant? = null,
     val isActive: Boolean,
+    val isTrackable: Boolean,
+    val difficulty: ChallengeDifficulty
 )
