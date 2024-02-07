@@ -24,7 +24,6 @@ internal object ChallengeTypes : UUIDTable() {
 }
 
 
-
 internal object Challenges : UUIDTable() {
     val title = varchar("title", 255)
     val description = text("description", eagerLoading = true)
@@ -37,7 +36,7 @@ internal object Challenges : UUIDTable() {
 
     val isActive = bool("isActive").default(false)
     val isTrackable = bool("isTrackable").default(false)
-    val difficulty = enumerationByName("difficulty", 10, ChallengeDifficulty::class)
+    val difficulty = enumerationByName("difficulty", 10, ChallengeDifficulty::class).default(ChallengeDifficulty.EASY)
 }
 
 internal object ChallengeTypeChallenges : UUIDTable() {
