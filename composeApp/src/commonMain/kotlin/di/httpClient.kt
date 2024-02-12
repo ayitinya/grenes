@@ -17,7 +17,6 @@ import org.koin.dsl.module
 val httpClientModule = module {
     single(createdAtStart = true) {
         HttpClient {
-            expectSuccess = true
 
             val firebase: FirebaseAuth = get()
 
@@ -46,8 +45,6 @@ val httpClientModule = module {
                             )
                         }
                     } catch (e: Exception) {
-                        println("Error ${e.message} ${e.cause}")
-                        println("Error $e")
                         e.printStackTrace()
                         throw Exception("Error getting token")
                     }
