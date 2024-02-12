@@ -39,7 +39,11 @@ val httpClientModule = module {
                 if (firebase.currentUser != null) {
                     try {
                         runBlocking {
-                            val token = firebase.currentUser!!.getIdToken(forceRefresh = true)
+                            val token = try {
+                                firebase.currentUser!!.getIdToken(forceRefresh = true)
+                            } catch (e: Exception) {
+                                firebase.signOut()
+                            }
                             header(
                                 "Authorization", "Bearer $token"
                             )
