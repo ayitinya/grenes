@@ -1,8 +1,14 @@
+import com.google.cloud.tools.gradle.appengine.appyaml.AppEngineAppYamlExtension
+
 plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.ktor)
     alias(libs.plugins.kotlinPluginSerialization)
     application
+    id("org.flywaydb.flyway")
+    id("com.github.johnrengelman.shadow")
+    id("com.google.cloud.tools.appengine")
+    id("io.sentry.jvm.gradle")
 }
 
 group = "me.ayitinya.grenes"
@@ -61,8 +67,27 @@ dependencies {
     implementation(libs.firebase.admin)
     implementation(libs.guava)
     testImplementation("io.ktor:ktor-server-test-host-jvm:2.3.7")
+
+    implementation("org.flywaydb:flyway-core:10.7.2")
+    implementation("com.impossibl.pgjdbc-ng:pgjdbc-ng:0.8.9")
+    implementation("org.postgresql:postgresql:42.7.1")
+    implementation("com.google.cloud.sql:postgres-socket-factory:1.15.2")
+    implementation(platform("io.sentry:sentry-bom:7.3.0")) //import bom
+    implementation("io.sentry:sentry") //no version specified
+    implementation("io.sentry:sentry-logback") //no version specified
+
 }
 
 tasks.test {
     useJUnitPlatform()
+}
+
+configure<AppEngineAppYamlExtension> {
+    stage {
+        setArtifact("build/libs/${project.name}-all.jar")
+    }
+    deploy {
+        version = "GCLOUD_CONFIG"
+        projectId = "GCLOUD_CONFIG"
+    }
 }
