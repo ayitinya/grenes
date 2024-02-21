@@ -1,3 +1,4 @@
+import dev.icerock.gradle.MRVisibility
 import org.jetbrains.compose.ExperimentalComposeLibrary
 
 plugins {
@@ -6,8 +7,8 @@ plugins {
     alias(libs.plugins.jetbrainsCompose)
 
     alias(libs.plugins.kotlinPluginSerialization)
-    id("org.kodein.mock.mockmp")
     id("app.cash.sqldelight")
+//    id("dev.icerock.mobile.multiplatform-resources")
 }
 
 kotlin {
@@ -40,18 +41,20 @@ kotlin {
             implementation(libs.koin.android)
 
             implementation(project.dependencies.platform("com.google.firebase:firebase-bom:32.7.0"))
-
+//            implementation("androidx.compose.material3:material3-android:1.2.0-rc01")
             // Add the dependency for the Firebase Authentication library
             // When using the BoM, you don't specify versions in Firebase library dependencies
             implementation("com.google.firebase:firebase-auth")
-
-            // Also add the dependency for the Google Play services library and specify its version
             implementation(libs.gms.play.services.auth)
+            // Also add the dependency for the Google Play services library and specify its version
             implementation("com.google.firebase:firebase-dynamic-links")
 
             api("androidx.startup:startup-runtime:1.1.1")
 
             implementation("app.cash.sqldelight:android-driver:2.0.1")
+
+            api("dev.icerock.moko:resources:0.23.0")
+            api("dev.icerock.moko:resources-compose:0.23.0")
         }
 
         commonTest.dependencies {
@@ -68,7 +71,7 @@ kotlin {
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
-            @OptIn(ExperimentalComposeLibrary::class) implementation(compose.components.resources)
+            implementation(compose.components.resources)
 
             implementation(compose.materialIconsExtended)
 
@@ -99,27 +102,30 @@ kotlin {
 
             implementation(libs.firebase.auth)
 
-            implementation("app.cash.paging:paging-common:3.3.0-alpha02-0.4.0")
-            implementation("app.cash.paging:paging-compose-common:3.3.0-alpha02-0.4.0")
+            implementation(libs.paging.common)
+            implementation(libs.paging.compose.common)
 
-            implementation("media.kamel:kamel-image:0.9.0")
+            implementation(libs.kotlin.reflect)
 
-            implementation("org.jetbrains.kotlin:kotlin-reflect")
+            api(libs.androidx.datastore.preferences.core)
+            api(libs.androidx.datastore.core)
 
-            api("androidx.datastore:datastore-preferences-core:1.1.0-alpha07")
-            api("androidx.datastore:datastore-core:1.1.0-alpha07")
+            implementation(libs.mpfilepicker)
 
+            implementation(libs.coroutines.extensions)
+
+            implementation(libs.kamel.image)
+            implementation(libs.calf.file.picker)
+
+//            implementation("com.airbnb.android:lottie-compose:6.3.0")
+            implementation(libs.compottie)
+//            implementation("io.github.ismai117:kottie:1.4.3")
         }
 
         iosMain.dependencies {
-            implementation("app.cash.sqldelight:native-driver:2.0.1")
+            implementation(libs.sqldelight.native.driver)
         }
     }
-}
-
-mockmp {
-    usesHelper = true
-    installWorkaround()
 }
 
 android {
@@ -159,6 +165,7 @@ android {
     }
     dependencies {
         debugImplementation(libs.compose.ui.tooling)
+        implementation(libs.androidx.core.splashscreen)
     }
 
     apply(plugin = "com.google.gms.google-services")
@@ -172,3 +179,10 @@ sqldelight {
     }
 }
 
+//multiplatformResources {
+//    multiplatformResourcesPackage = "me.ayitinya.grenes" // required
+//    multiplatformResourcesClassName = "SharedRes" // optional, default MR
+//    multiplatformResourcesVisibility = MRVisibility.Internal // optional, default Public
+////    iosBaseLocalizationRegion = "en" // optional, default "en"
+////    multiplatformResourcesSourceSet = "commonClientMain"  // optional, default "commonMain"
+//}
