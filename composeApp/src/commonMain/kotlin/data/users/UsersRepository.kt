@@ -1,10 +1,11 @@
 package data.users
 
 import me.ayitinya.grenes.data.users.User
+import me.ayitinya.grenes.data.users.UserId
 
 interface UsersRepository {
 
-    suspend fun getUser(uid: String): User?
+    suspend fun getUser(uid: UserId): User?
 
     suspend fun getUser(): User?
 

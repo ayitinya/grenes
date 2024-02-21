@@ -2,6 +2,7 @@ package me.ayitinya.grenes.routing
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.resources.*
 import io.ktor.server.resources.post
@@ -10,6 +11,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.util.logging.*
 import kotlinx.datetime.Instant
+import me.ayitinya.grenes.auth.firebase.FIREBASE_AUTH
 import me.ayitinya.grenes.data.challenges.Challenge
 import me.ayitinya.grenes.data.challenges.ChallengeCreation
 import me.ayitinya.grenes.data.challenges.ChallengeDao
@@ -81,7 +83,10 @@ fun Route.challengeRoutes() {
             if (createdChallenge != null) {
                 call.respond(createdChallenge)
             } else {
-                call.respondText("Challenge not created", status = HttpStatusCode.InternalServerError)
+                call.respondText(
+                    "Challenge not created",
+                    status = HttpStatusCode.InternalServerError
+                )
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -154,7 +159,10 @@ fun Route.challengeRoutes() {
             if (createdChallengeType != null) {
                 call.respond(createdChallengeType)
             } else {
-                call.respondText("Challenge type not created", status = HttpStatusCode.InternalServerError)
+                call.respondText(
+                    "Challenge type not created",
+                    status = HttpStatusCode.InternalServerError
+                )
             }
         } catch (e: Exception) {
             LOGGER.error("${e.message}")

@@ -11,7 +11,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.transform
+import kotlinx.datetime.Clock
 import me.ayitinya.grenes.data.users.User
+import me.ayitinya.grenes.data.users.UserId
 
 
 /**
@@ -25,7 +27,7 @@ class DefaultAuthenticationUseCase(
     private val appPreferences: AppPreferences,
     private val usersRepository: UsersRepository,
     private val authRepository: AuthRepository,
-    private val httpClient: HttpClient
+    private val httpClient: HttpClient,
 ) : AuthenticationUseCase {
     override fun getAuthState(): Flow<AuthState> {
         return authRepository.getCurrentUser().transform { firebaseUser ->
@@ -35,7 +37,26 @@ class DefaultAuthenticationUseCase(
                 if (firebaseUser.isAnonymous) {
                     emit(AuthState.Anonymous)
                 } else {
-                    emit(AuthState.Authenticated(firebaseUser.uid))
+                    val user = try {
+                        usersRepository.getUser()
+                    } catch (e: Exception) {
+                        null
+                    }
+
+                    if (user != null) {
+                        emit(AuthState.Authenticated(user))
+
+                    } else {
+                        emit(
+                            AuthState.Authenticated(
+                                User(
+                                    uid = UserId(firebaseUser.uid),
+                                    createdAt = Clock.System.now(),
+                                    email = firebaseUser.email ?: ""
+                                )
+                            )
+                        )
+                    }
                 }
             }
         }
@@ -45,14 +66,18 @@ class DefaultAuthenticationUseCase(
         val firebaseUser = authRepository.getCurrentUser().take(1).firstOrNull()
 
         return if (firebaseUser != null) {
-            val user = usersRepository.getUser(firebaseUser.uid)
+            val user = usersRepository.getUser(UserId(firebaseUser.uid))
             if (user != null) {
                 return user
             } else null
         } else null
     }
 
-    override suspend fun sendSignInLinkToEmail(email: String, onEmailSent: () -> Unit, onError: (String) -> Unit) {
+    override suspend fun sendSignInLinkToEmail(
+        email: String,
+        onEmailSent: () -> Unit,
+        onError: (String) -> Unit,
+    ) {
         try {
             authRepository.sendSignInLinkToEmail(email, onEmailSent, onError)
         } catch (e: Exception) {

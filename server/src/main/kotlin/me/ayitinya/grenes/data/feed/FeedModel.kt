@@ -1,8 +1,9 @@
 package me.ayitinya.grenes.data.feed
 
 import kotlinx.datetime.Clock
+import me.ayitinya.grenes.data.challenges.Challenge
 import me.ayitinya.grenes.data.challenges.Challenges
-import me.ayitinya.grenes.data.media.MediaTable
+import me.ayitinya.grenes.data.media.Media
 import me.ayitinya.grenes.data.users.User
 import me.ayitinya.grenes.data.users.UsersTable
 import org.jetbrains.exposed.dao.id.UUIDTable
@@ -13,20 +14,21 @@ import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 
 internal object FeedsTable : UUIDTable() {
     val content = largeText("content", eagerLoading = true)
+    val editedAt = timestamp("editedAt").nullable()
     val createdAt = timestamp("createdAt").clientDefault { Clock.System.now() }
     val user =
-        reference("user", UsersTable.uid, onDelete = ReferenceOption.NO_ACTION, onUpdate = ReferenceOption.NO_ACTION)
-    val challengeSubmission = bool("challengeSubmission").default(false)
-    val challenge = optReference("challengeId", Challenges)
-}
-
-internal object FeedMedia : UUIDTable() {
-    val media = reference("media", MediaTable)
-    val feed = reference("feed", FeedsTable)
-
-    init {
-        uniqueIndex(media, feed)
-    }
+        reference(
+            "user",
+            UsersTable.uid,
+            onDelete = ReferenceOption.NO_ACTION,
+            onUpdate = ReferenceOption.NO_ACTION
+        )
+    val challenge = optReference(
+        "challenge",
+        Challenges,
+        onDelete = ReferenceOption.CASCADE,
+        onUpdate = ReferenceOption.NO_ACTION
+    )
 }
 
 internal object FeedComments : UUIDTable() {
@@ -39,7 +41,8 @@ internal object FeedComments : UUIDTable() {
 internal object ReactionsTable : UUIDTable() {
     val user = reference("user", UsersTable.uid)
     val reactable = enumerationByName<Reactables>("reactable", 10)
-    val reactionType = enumerationByName<ReactionType>("reactionType", 10).clientDefault { ReactionType.LIKE }
+    val reactionType =
+        enumerationByName<ReactionType>("reactionType", 10).clientDefault { ReactionType.LIKE }
     val reactionTo = varchar("reactionTo", 255)
 
     init {
@@ -47,23 +50,31 @@ internal object ReactionsTable : UUIDTable() {
     }
 }
 
-fun ResultRow.toFeed(reactions: Long, comments: Long = 0, shares: Long= 0, user: User, media: List<String>): Feed {
+fun ResultRow.toFeed(
+    reactions: List<Reaction> = emptyList(),
+    comments: List<FeedComment> = emptyList(),
+    shares: Long = 0,
+    user: User,
+    media: List<Media>,
+    challenge: Challenge? = null,
+): Feed {
     return Feed(
+        id = FeedId(this[FeedsTable.id].toString()),
         content = this[FeedsTable.content],
         createdAt = this[FeedsTable.createdAt],
-        reactions = reactions,
+        reactionsList = reactions.toMutableList(),
+        reactions = 0L,
         comments = comments,
         shares = shares,
         user = user,
         media = media,
-        isChallengeSubmission = this[FeedsTable.challengeSubmission],
-        challenge = this[FeedsTable.challenge]?.toString()
+        challenge = challenge
     )
 }
 
-fun ResultRow.toFeedComment(feed: Feed, user: User, reactions: List<Reaction>): FeedComment {
+fun ResultRow.toFeedComment(feed: FeedId, user: User, reactions: List<Reaction>): FeedComment {
     return FeedComment(
-        feed = feed,
+        feedId = feed,
         content = this[FeedComments.content],
         createdAt = this[FeedComments.createdAt],
         user = user,
@@ -73,6 +84,7 @@ fun ResultRow.toFeedComment(feed: Feed, user: User, reactions: List<Reaction>): 
 
 fun ResultRow.toReaction(user: User): Reaction {
     return Reaction(
+        reactionId = ReactionId(this[ReactionsTable.id].toString()),
         reactionType = this[ReactionsTable.reactionType],
         user = user
     )

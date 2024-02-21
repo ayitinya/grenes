@@ -8,6 +8,7 @@ import io.ktor.http.*
 import kotlinx.datetime.Clock
 import me.ayitinya.grenes.data.challenges.Challenge
 import me.ayitinya.grenes.data.challenges.ChallengeCreation
+import me.ayitinya.grenes.data.users.UserId
 import me.ayitinya.grenes.routing.ChallengeResource
 
 class DefaultChallengeNetworkDataSource(private val httpClient: HttpClient) : ChallengeNetworkDataSource {
@@ -23,6 +24,21 @@ class DefaultChallengeNetworkDataSource(private val httpClient: HttpClient) : Ch
     override suspend fun getChallenge(uid: String): Challenge? {
         return try {
             httpClient.get(ChallengeResource.Detail(uid = uid)).body<Challenge?>()
+        } catch (exception: Exception) {
+            throw exception
+        }
+    }
+
+    override suspend fun getUserChallenges(userId: UserId): List<Challenge> {
+        return try {
+            val response = httpClient.get(ChallengeResource(userId = userId))
+
+            if (response.status == HttpStatusCode.NotFound) {
+                return emptyList()
+            }
+
+            response.body<List<Challenge>>()
+
         } catch (exception: Exception) {
             throw exception
         }

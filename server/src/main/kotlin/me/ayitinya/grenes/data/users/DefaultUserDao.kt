@@ -78,7 +78,7 @@ class DefaultUserDao : UserDao {
     override suspend fun getUserByEmail(email: String): User? = Db.query {
         return@query UsersTable.select { UsersTable.email eq email }.firstOrNull()?.let {
             User(
-                uid = it[UsersTable.uid],
+                uid = UserId(it[UsersTable.uid]),
                 displayName = it[UsersTable.displayName],
                 email = it[UsersTable.email],
                 createdAt = it[UsersTable.createdAt],
@@ -92,7 +92,7 @@ class DefaultUserDao : UserDao {
     override suspend fun getUserById(uid: String): User? = Db.query {
         UsersTable.select { UsersTable.uid eq uid }.firstOrNull()?.let {
             User(
-                uid = it[UsersTable.uid],
+                uid = UserId(it[UsersTable.uid]),
                 displayName = it[UsersTable.displayName],
                 email = it[UsersTable.email],
                 createdAt = it[UsersTable.createdAt],

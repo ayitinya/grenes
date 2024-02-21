@@ -18,8 +18,8 @@ sealed class Screens(val path: String) {
         data object Profile : MainNavigation("profile/{uid}?", Icons.Default.Person, "Profile")
 
         companion object {
-            fun profileRoute(uid: String? = null): String =
-                Profile.path.replace("/{uid}", if (uid != null) "/$uid" else "")
+            fun profileRoute(uid: String): String =
+                Profile.path.replace("/{uid}", "/$uid")
         }
 
     }
@@ -51,4 +51,8 @@ sealed class Screens(val path: String) {
     }
 
     data object ChallengeDetail : Screens("challenge/{uid}")
+
+    data object CreatePost : Screens("create-post/{challengeId}?")
+
+    data object FeedDetail : Screens("feed-detail/{feedId}")
 }

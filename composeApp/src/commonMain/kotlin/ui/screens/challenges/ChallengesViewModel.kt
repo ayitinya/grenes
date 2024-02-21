@@ -37,6 +37,8 @@ class ChallengesViewModel(private val challengesRepository: ChallengesRepository
                 }, loading = false
                 )
             }
+
+            println("Challenges: ${uiState.value}")
         }
     }
 

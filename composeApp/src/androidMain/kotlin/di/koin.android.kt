@@ -1,12 +1,5 @@
 package di
 
-import app.cash.sqldelight.db.SqlDriver
-import app.cash.sqldelight.driver.android.AndroidSqliteDriver
-import me.ayitinya.grenes.Database
-import data.dataStorePreferences
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
@@ -20,5 +13,8 @@ import org.koin.dsl.module
 //    }
 //}
 
+val androidModules = module {
+}
 
-actual val platformModules: List<Module> = listOf()
+
+actual val platformModules: List<Module> = listOf(androidModules)

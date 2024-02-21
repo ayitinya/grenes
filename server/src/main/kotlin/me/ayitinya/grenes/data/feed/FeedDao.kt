@@ -1,13 +1,15 @@
 package me.ayitinya.grenes.data.feed
 
+import me.ayitinya.grenes.data.users.UserId
+
 interface FeedDao {
-    suspend fun createFeed(feed: FeedCreation): Feed?
-    suspend fun getFeed(feedId: String): Feed?
-    suspend fun getFeeds(): List<Feed>
-    suspend fun updateFeed(feedId: String, feed: FeedCreation)
+    suspend fun create(content: String, userUid: String, challengeId: String? = null): Feed
+    suspend fun getFeed(feedId: FeedId): Feed
+    suspend fun getFeeds(userId: UserId?, nextPageNumber: Int?, pageSize: Int? = 10): List<Feed>
+    suspend fun updateFeed(feedId: String, feed: FeedDto)
     suspend fun deleteFeed(feedId: String)
     suspend fun getFeedComments(feedId: String): List<FeedComment>
-    suspend fun createFeedComment(feedId: String, feedComment: FeedCommentCreation): FeedComment?
+    suspend fun createFeedComment(feedComment: FeedCommentDto): FeedComment
     suspend fun updateFeedComment(feedId: String, feedCommentId: String, feedComment: FeedCommentCreation): FeedComment?
     suspend fun deleteFeedComment(feedCommentId: String)
     suspend fun getFeedReactions(feedId: String): List<Reaction>

@@ -17,7 +17,7 @@ class DefaultUserUserChallengeNetworkDataSourceTest : KoinTest {
     @Test
     fun `test user create with email and password`() {
         startKoin {
-            modules(httpClientModule, appModule)
+//            modules(httpClientModule(), appModule())
         }
 
         val auth = Firebase.auth

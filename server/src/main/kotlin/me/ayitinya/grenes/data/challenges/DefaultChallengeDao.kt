@@ -3,6 +3,7 @@ package me.ayitinya.grenes.data.challenges
 import io.ktor.util.logging.*
 import kotlinx.datetime.Instant
 import me.ayitinya.grenes.data.Db
+import me.ayitinya.grenes.data.users.UserId
 import me.ayitinya.grenes.data.users.UsersTable
 import me.ayitinya.grenes.data.users.toUser
 import org.jetbrains.exposed.sql.*
@@ -18,7 +19,7 @@ class DefaultChallengeDao : ChallengeDao {
         suggestedBy: String?,
         challengeTypes: List<UUID>,
         startDate: Instant?,
-        endDate: Instant?
+        endDate: Instant?,
     ): Challenge? {
         return Db.query {
 
@@ -90,7 +91,11 @@ class DefaultChallengeDao : ChallengeDao {
     }
 
     override suspend fun read(
-        challengeType: List<String>?, date: Instant?, suggestedBy: String?, isActive: Boolean?
+        userId: UserId?,
+        challengeType: List<String>?,
+        date: Instant?,
+        suggestedBy: String?,
+        isActive: Boolean?,
     ): List<Challenge> = Db.query {
 
         val query = Challenges.selectAll()

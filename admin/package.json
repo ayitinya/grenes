@@ -16,6 +16,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@sentry/vue": "^7.101.0",
     "@vuepic/vue-datepicker": "^7.4.1",
     "@vueuse/core": "^10.7.2",
     "autoprefixer": "^10.4.17",

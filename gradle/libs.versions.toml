@@ -1,23 +1,29 @@
 [versions]
 accompanist_version = "0.30.1"
+calfFilePickerVersion = "0.3.1"
+compottieVersion = "1.1.0"
+coreSplashscreenVersion = "1.0.1"
+coroutinesExtensionsVersion = "2.0.1"
+datastorePreferencesCoreVersion = "1.1.0-alpha07"
 decompose = "3.0.0-alpha01"
 ehcache = "3.10.8"
 exposedVersion = "0.41.1"
 firebaseAdmin = "9.2.0"
 firebaseAuth = "1.10.4"
-google-playServicesAuth = "20.7.0"
+google-playServicesAuth = "21.0.0"
 guava = "32.1.3-jre"
 h2 = "2.1.214"
 hikaricp = "5.0.1"
 junitJupiter = "5.9.3"
+kamelImageVersion = "0.9.1"
 koinCompose = "1.1.1-RC1"
 koinCoreVersion = "3.5.3"
 kotlinxDatetime = "0.5.0"
 kotlinxSerializationJson = "1.6.2"
 ktor = "2.3.7"
 logback = "1.4.14"
-compose = "1.5.4"
-compose-plugin = "1.6.0-alpha01"
+compose = "1.6.1"
+compose-plugin = "1.6.0-beta01"
 compose-compiler = "1.5.4"
 agp = "8.2.0"
 android-minSdk = "24"
@@ -33,11 +39,20 @@ androidx-espresso-core = "3.5.1"
 kotlin = "1.9.21"
 junit = "4.13.2"
 material3WindowSizeClassMultiplatform = "0.3.1"
+mpfilepickerVersion = "3.1.0"
 multiplatformSettings = "1.1.1"
+nativeDriverVersion = "2.0.1"
+pagingCommonVersion = "3.3.0-alpha02-0.4.0"
 precompose = "1.5.8"
 
 [libraries]
 accompanist-systemuicontroller = { group = "com.google.accompanist", name = "accompanist-systemuicontroller", version.ref = "accompanist_version" }
+androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreenVersion" }
+androidx-datastore-core = { module = "androidx.datastore:datastore-core", version.ref = "datastorePreferencesCoreVersion" }
+androidx-datastore-preferences-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastorePreferencesCoreVersion" }
+calf-file-picker = { module = "com.mohamedrejeb.calf:calf-file-picker", version.ref = "calfFilePickerVersion" }
+compottie = { module = "io.github.alexzhirkevich:compottie", version.ref = "compottieVersion" }
+coroutines-extensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "coroutinesExtensionsVersion" }
 decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
 decompose-extensions-compose = { module = "com.arkivanov.decompose:extensions-compose", version.ref = "decompose" }
 ehcache = { module = "org.ehcache:ehcache", version.ref = "ehcache" }
@@ -54,6 +69,7 @@ h2 = { module = "com.h2database:h2", version.ref = "h2" }
 hikariCP = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
 insert-koin-koin-core = { module = "io.insert-koin:koin-core", version.ref = "koinCoreVersion" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junitJupiter" }
+kamel-image = { module = "media.kamel:kamel-image", version.ref = "kamelImageVersion" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koinCoreVersion" }
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koinCoreVersion" }
 koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koinCompose" }
@@ -61,6 +77,7 @@ koin-ktor = { module = "io.insert-koin:koin-ktor", version.ref = "koinCoreVersio
 koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j", version.ref = "koinCoreVersion" }
 koin-test = { module = "io.insert-koin:koin-test", version.ref = "koinCoreVersion" }
 koin-test-junit5 = { module = "io.insert-koin:koin-test-junit5", version.ref = "koinCoreVersion" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -100,13 +117,17 @@ androidx-material = { group = "com.google.android.material", name = "material", 
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "androidx-constraintlayout" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 material3-window-sizeclass-multiplatform = { module = "dev.chrisbanes.material3:material3-window-size-class-multiplatform", version.ref = "material3WindowSizeClassMultiplatform" }
+mpfilepicker = { module = "com.darkrockstudios:mpfilepicker", version.ref = "mpfilepickerVersion" }
 multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatformSettings" }
 multiplatform-settings-datastore = { module = "com.russhwolf:multiplatform-settings-datastore", version.ref = "multiplatformSettings" }
 multiplatform-settings-serialization = { module = "com.russhwolf:multiplatform-settings-serialization", version.ref = "multiplatformSettings" }
 multiplatform-settings-test = { module = "com.russhwolf:multiplatform-settings-test", version.ref = "multiplatformSettings" }
+paging-common = { module = "app.cash.paging:paging-common", version.ref = "pagingCommonVersion" }
+paging-compose-common = { module = "app.cash.paging:paging-compose-common", version.ref = "pagingCommonVersion" }
 precompose = { module = "moe.tlaster:precompose", version.ref = "precompose" }
 precompose-koin = { module = "moe.tlaster:precompose-koin", version.ref = "precompose" }
 precompose-viewmodel = { module = "moe.tlaster:precompose-viewmodel", version.ref = "precompose" }
+sqldelight-native-driver = { module = "app.cash.sqldelight:native-driver", version.ref = "nativeDriverVersion" }
 
 [plugins]
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

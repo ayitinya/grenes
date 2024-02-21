@@ -24,7 +24,7 @@ internal object UsersTable : Table() {
 
 fun ResultRow.toUser(): User {
     return User(
-        uid = this[UsersTable.uid],
+        uid = UserId(this[UsersTable.uid]),
         username = this[UsersTable.username],
         displayName = this[UsersTable.displayName],
         email = this[UsersTable.email],

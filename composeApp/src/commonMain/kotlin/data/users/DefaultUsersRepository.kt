@@ -1,10 +1,16 @@
 package data.users
 
+import data.users.local.DefaultUsersLocalDataSource
+import data.users.local.UsersLocalDataSource
 import data.users.remote.UserNetworkDataSource
 import me.ayitinya.grenes.data.users.User
+import me.ayitinya.grenes.data.users.UserId
 
-class DefaultUsersRepository(private val userNetworkDataSource: UserNetworkDataSource) : UsersRepository {
-    override suspend fun getUser(uid: String): User? {
+class DefaultUsersRepository(
+    private val userNetworkDataSource: UserNetworkDataSource,
+    private val usersLocalDataSource: UsersLocalDataSource,
+) : UsersRepository {
+    override suspend fun getUser(uid: UserId): User? {
         return userNetworkDataSource.getUser(uid)
     }
 
@@ -42,7 +48,7 @@ class DefaultUsersRepository(private val userNetworkDataSource: UserNetworkDataS
         photoUrl: String?,
         displayName: String,
         city: String,
-        country: String
+        country: String,
     ) {
         userNetworkDataSource.updateProfile(
             uid = uid,
@@ -60,7 +66,7 @@ class DefaultUsersRepository(private val userNetworkDataSource: UserNetworkDataS
         photoUrl: String?,
         displayName: String,
         city: String,
-        country: String
+        country: String,
     ) {
         userNetworkDataSource.createProfile(
             uid = uid,

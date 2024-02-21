@@ -2,6 +2,7 @@ package me.ayitinya.grenes.routing
 
 import io.ktor.resources.*
 import kotlinx.serialization.Serializable
+import me.ayitinya.grenes.data.users.UserId
 
 @Serializable
 @Resource("/users")
@@ -19,6 +20,6 @@ class UsersResource {
     data class CreateUserWithUid(val parent: UsersResource = UsersResource())
 
     @Serializable
-    @Resource("/")
+    @Resource("{uid}")
     data class UserDetails(val parent: UsersResource, val uid: String)
 }

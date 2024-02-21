@@ -1,32 +1,24 @@
 package me.ayitinya.grenes.data.media
 
 import kotlinx.datetime.Clock
+import me.ayitinya.grenes.data.feed.FeedsTable
 import me.ayitinya.grenes.data.users.UsersTable
-import org.jetbrains.exposed.dao.UUIDEntity
-import org.jetbrains.exposed.dao.UUIDEntityClass
-import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.UUIDTable
+import org.jetbrains.exposed.sql.ReferenceOption
+import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
-import java.util.UUID
 
-enum class FileTypes {
-    IMAGE,
-    VIDEO,
-    AUDIO
-}
 
 object MediaTable : UUIDTable() {
     val fileUrl = varchar("fileUrl", 255)
-    val type = enumerationByName("type", 10, FileTypes::class).default(FileTypes.IMAGE)
+    val fileType = varchar("fileType", 255)
     val createdAt = timestamp("createdAt").default(Clock.System.now())
     val user = reference("user", UsersTable.uid)
+    val feed = reference("feed", FeedsTable, onDelete = ReferenceOption.CASCADE, onUpdate = ReferenceOption.NO_ACTION)
 }
 
-//class Media(id: EntityID<UUID>) : UUIDEntity(id) {
-//    companion object : UUIDEntityClass<Media>(MediaTable)
-//
-//    var fileUrl by MediaTable.fileUrl
-//    var type by MediaTable.type
-//    var createdAt by MediaTable.createdAt
-//    var user by UserEntity referencedOn MediaTable.user
-//}
+fun ResultRow.toMedia() = Media(
+    id = this[MediaTable.id].toString(),
+    type = this[MediaTable.fileType],
+    url = this[MediaTable.fileUrl],
+)

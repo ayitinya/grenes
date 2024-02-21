@@ -7,8 +7,19 @@ import io.ktor.server.http.content.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import me.ayitinya.grenes.auth.RoleBasedAuthorizationPlugin
+import me.ayitinya.grenes.auth.Roles
 import me.ayitinya.grenes.routing.challengeRoutes
+import me.ayitinya.grenes.routing.feedRoutes
 import me.ayitinya.grenes.routing.userRoutes
+
+fun Route.rbac(
+    vararg hasAnyRole: Roles,
+    build: Route.() -> Unit
+) {
+    install(RoleBasedAuthorizationPlugin) { roles = hasAnyRole.toSet() }
+    build()
+}
 
 fun Application.configureRouting() {
     routing {
@@ -17,6 +28,7 @@ fun Application.configureRouting() {
 
         userRoutes()
         challengeRoutes()
+        feedRoutes()
 
         get("/") {
             call.respondText("Ktor: ${Greeting().greet()}")
@@ -29,6 +41,11 @@ fun Application.configureRouting() {
         allowMethod(HttpMethod.Post)
         allowMethod(HttpMethod.Put)
         allowMethod(HttpMethod.Delete)
+        allowHeader(HttpHeaders.AccessControlAllowOrigin)
+        allowHeader(HttpHeaders.Authorization)
+        allowHeader(HttpHeaders.ContentType)
+        allowHeader("Baggage")
+        allowHeader("Sentry-Trace")
         anyHost()
     }
 }

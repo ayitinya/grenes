@@ -1,53 +1,74 @@
 package me.ayitinya.grenes.data.feed
 
 import me.ayitinya.grenes.data.Db
+import me.ayitinya.grenes.data.challenges.ChallengeDao
+import me.ayitinya.grenes.data.media.MediaTable
+import me.ayitinya.grenes.data.media.toMedia
+import me.ayitinya.grenes.data.users.UserId
 import me.ayitinya.grenes.data.users.UsersTable
 import me.ayitinya.grenes.data.users.toUser
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import java.util.*
 
-class DefaultFeedDao : FeedDao {
-    override suspend fun createFeed(feed: FeedCreation): Feed? {
+class DefaultFeedDao(private val challengeDao: ChallengeDao) : FeedDao {
+    override suspend fun create(content: String, userUid: String, challengeId: String?): Feed {
         return Db.query {
-            val insertFeedsStatement = FeedsTable.insert {
-                it[content] = feed.content
-                it[user] = feed.user.uid
-                it[challengeSubmission] = feed.isChallengeSubmission
+            val challengeUUID = challengeId?.let {
+                UUID.fromString(challengeId)
+                    ?: throw IllegalArgumentException("Invalid challenge id")
+            }
+            val challenge = challengeUUID?.let {
+                challengeDao.read(challengeUUID)
+                    ?: throw IllegalArgumentException("Challenge not found")
+            }
+            val user = try {
+                UsersTable.select { UsersTable.uid eq userUid }.single().toUser()
+            } catch (e: NoSuchElementException) {
+                throw IllegalArgumentException("User not found")
             }
 
-            feed.media.forEach { media ->
-                val mediaUUID = UUID.fromString(media)
-                FeedMedia.insert {
-                    it[FeedMedia.feed] = insertFeedsStatement[FeedsTable.id]
-                    it[FeedMedia.media] = mediaUUID
-                }
+            val insertStatement = FeedsTable.insert {
+                it[FeedsTable.content] = content
+                it[FeedsTable.user] = userUid
+                it[FeedsTable.challenge] = challengeUUID
             }
 
-            return@query insertFeedsStatement.resultedValues?.first()?.toFeed(
-                reactions = 0,
-                comments = 0,
-                shares = 0,
-                user = feed.user,
-                media = feed.media
-            )
+            insertStatement.resultedValues?.first()
+                ?.toFeed(user = user, challenge = challenge, media = emptyList())
+                ?: throw IllegalStateException("Post not created")
+
         }
     }
 
-    override suspend fun getFeed(feedId: String): Feed? {
+    override suspend fun getFeed(feedId: FeedId): Feed {
         return Db.query {
-            val feed = FeedsTable.select { FeedsTable.id eq UUID.fromString(feedId) }.firstOrNull()
-            if (feed == null) {
-                return@query null
-            }
+            val feed = FeedsTable.select { FeedsTable.id eq UUID.fromString(feedId.value) }
+                .orderBy(column = FeedsTable.createdAt, order = SortOrder.DESC).first()
 
             val media =
-                FeedMedia.select { FeedMedia.feed eq feed[FeedsTable.id] }.map { it[FeedMedia.media].toString() }
-            val user = UsersTable.select { UsersTable.uid eq feed[FeedsTable.user] }.firstOrNull()?.toUser()
-            val reactions = ReactionsTable.select {
-                ReactionsTable.reactionTo eq feed[FeedsTable.id].toString()
-            }.count()
-            val comments = FeedComments.select { FeedComments.feed eq feed[FeedsTable.id] }.count()
+                MediaTable.select { MediaTable.feed eq feed[FeedsTable.id] }.map { it.toMedia() }
+            val user = UsersTable.select { UsersTable.uid eq feed[FeedsTable.user] }.firstOrNull()
+                ?.toUser()
+            val reactions =
+                ReactionsTable.select { ReactionsTable.reactionTo eq feed[FeedsTable.id].toString() }
+                    .map {
+                        val reactionUser =
+                            UsersTable.select { UsersTable.uid eq it[ReactionsTable.user] }.first()
+                                .toUser()
+                        it.toReaction(user = reactionUser)
+                    }
+            val comments = FeedComments.select { FeedComments.feed eq feed[FeedsTable.id] }.map {
+
+                val commentUser =
+                    UsersTable.select { UsersTable.uid eq it[FeedComments.user] }.first().toUser()
+                it.toFeedComment(
+                    feed = feedId,
+                    reactions = emptyList(),
+                    user = commentUser
+                )
+            }
+
             val shares = 0L
 
             return@query feed.toFeed(
@@ -60,17 +81,53 @@ class DefaultFeedDao : FeedDao {
         }
     }
 
-    override suspend fun getFeeds(): List<Feed> {
+    override suspend fun getFeeds(
+        userId: UserId?,
+        nextPageNumber: Int?,
+        pageSize: Int?,
+    ): List<Feed> {
         return Db.query {
-            val feeds = FeedsTable.selectAll().toList()
+            val feedsQuery = FeedsTable.selectAll()
+                .orderBy(column = FeedsTable.createdAt, order = SortOrder.DESC)
+
+            userId?.let { feedsQuery.andWhere { FeedsTable.user eq it.value } }
+
+            nextPageNumber?.let {
+                if (pageSize != null) {
+                    feedsQuery.limit(n = pageSize, offset = ((it - 1) * pageSize).toLong())
+                }
+            }
+
+            val feeds = feedsQuery.toList()
+
             return@query feeds.map { feed ->
                 val media =
-                    FeedMedia.select { FeedMedia.feed eq feed[FeedsTable.id] }.map { it[FeedMedia.media].toString() }
-                val user = UsersTable.select { UsersTable.uid eq feed[FeedsTable.user] }.firstOrNull()?.toUser()
-                val reactions = ReactionsTable.select {
-                    ReactionsTable.reactionTo eq feed[FeedsTable.id].toString()
-                }.count()
-                val comments = FeedComments.select { FeedComments.feed eq feed[FeedsTable.id] }.count()
+                    MediaTable.select { MediaTable.feed eq feed[FeedsTable.id] }
+                        .map { it.toMedia() }
+                val user =
+                    UsersTable.select { UsersTable.uid eq feed[FeedsTable.user] }.firstOrNull()
+                        ?.toUser()
+                val reactions =
+                    ReactionsTable.select { ReactionsTable.reactionTo eq feed[FeedsTable.id].toString() }
+                        .map {
+                            val reactionUser =
+                                UsersTable.select { UsersTable.uid eq it[ReactionsTable.user] }
+                                    .first().toUser()
+                            it.toReaction(user = reactionUser)
+                        }
+                val comments =
+                    FeedComments.select { FeedComments.feed eq feed[FeedsTable.id] }.map {
+
+                        val commentUser =
+                            UsersTable.select { UsersTable.uid eq it[FeedComments.user] }.first()
+                                .toUser()
+                        it.toFeedComment(
+                            feed = FeedId(""),
+                            reactions = emptyList(),
+                            user = commentUser
+                        )
+                    }
+
                 val shares = 0L
 
                 return@map feed.toFeed(
@@ -84,24 +141,24 @@ class DefaultFeedDao : FeedDao {
         }
     }
 
-    override suspend fun updateFeed(feedId: String, feed: FeedCreation) {
-        return Db.query {
-            FeedsTable.update({ FeedsTable.id eq UUID.fromString(feedId) }) {
-                it[content] = feed.content
-                it[user] = feed.user.uid
-                it[challengeSubmission] = feed.isChallengeSubmission
-            }
-
-            feed.media.forEach { media ->
-                val mediaUUID = UUID.fromString(media)
-                FeedMedia.insertIgnore {
-                    it[FeedMedia.feed] = UUID.fromString(feedId)
-                    it[FeedMedia.media] = mediaUUID
-                }
-            }
-
-
-        }
+    override suspend fun updateFeed(feedId: String, feed: FeedDto) {
+//        return Db.query {
+//            FeedsTable.update({ FeedsTable.id eq UUID.fromString(feedId) }) {
+//                it[content] = feed.content
+//                it[user] = feed.user
+//                it[challenge] = UUID.fromString(feed.challenge)
+//            }
+//
+//            feed.media.forEach { media ->
+//                val mediaUUID = UUID.fromString(media)
+//                FeedMedia.insertIgnore {
+//                    it[FeedMedia.feed] = UUID.fromString(feedId)
+//                    it[FeedMedia.media] = mediaUUID
+//                }
+//            }
+//
+//
+//        }
     }
 
     override suspend fun deleteFeed(feedId: String) {
@@ -119,7 +176,9 @@ class DefaultFeedDao : FeedDao {
 
             val comments = FeedComments.select { FeedComments.feed eq feed[FeedsTable.id] }.toList()
             return@query comments.map { comment ->
-                val user = UsersTable.select { UsersTable.uid eq comment[FeedComments.user] }.firstOrNull()?.toUser()
+                val user =
+                    UsersTable.select { UsersTable.uid eq comment[FeedComments.user] }.first()
+                        .toUser()
                 val reactions = ReactionsTable.join(
                     UsersTable,
                     JoinType.INNER,
@@ -132,46 +191,41 @@ class DefaultFeedDao : FeedDao {
                     }
 
                 return@map comment.toFeedComment(
-                    feed = feed.toFeed(
-                        reactions = 0,
-                        comments = 0,
-                        shares = 0,
-                        user = user!!,
-                        media = emptyList()
-                    ),
+                    feed = FeedId(""),
                     reactions = reactions,
-                    user = user!!
+                    user = user
                 )
             }
         }
     }
 
-    override suspend fun createFeedComment(feedId: String, feedComment: FeedCommentCreation): FeedComment? {
+    override suspend fun createFeedComment(
+        feedComment: FeedCommentDto,
+    ): FeedComment {
         return Db.query {
             val insertFeedCommentStatement = FeedComments.insert {
                 it[content] = feedComment.content
-                it[user] = feedComment.user.uid
-                it[FeedComments.feed] = UUID.fromString(feedId)
+                it[user] = feedComment.userId.value
+                it[FeedComments.feed] = UUID.fromString(feedComment.feedId.value)
             }
 
-            val feed = FeedsTable.select { FeedsTable.id eq UUID.fromString(feedId) }.firstOrNull()
+            val feed =
+                FeedsTable.select { FeedsTable.id eq UUID.fromString(feedComment.feedId.value) }
+                    .firstOrNull()
             if (feed == null) {
-                return@query null
+                throw IllegalArgumentException("Feed not found")
             }
 
-            val user = UsersTable.select { UsersTable.uid eq feedComment.user.uid }.firstOrNull()?.toUser()
+            val user =
+                UsersTable.select { UsersTable.uid eq feedComment.userId.value }.first()
+                    .toUser()
+
             val reactions = ReactionsTable.select {
                 ReactionsTable.reactionTo eq insertFeedCommentStatement[FeedComments.id].toString()
             }.count()
 
             return@query insertFeedCommentStatement.resultedValues?.first()?.toFeedComment(
-                feed = feed.toFeed(
-                    reactions = 0,
-                    comments = 0,
-                    shares = 0,
-                    user = user!!,
-                    media = emptyList()
-                ),
+                feed = FeedId(""),
                 reactions = emptyList(),
                 user = user
             )!!
@@ -181,12 +235,12 @@ class DefaultFeedDao : FeedDao {
     override suspend fun updateFeedComment(
         feedId: String,
         feedCommentId: String,
-        feedComment: FeedCommentCreation
+        feedComment: FeedCommentCreation,
     ): FeedComment? {
         return Db.query {
             FeedComments.update({ FeedComments.id eq UUID.fromString(feedCommentId) }) {
                 it[content] = feedComment.content
-                it[user] = feedComment.user.uid
+                it[user] = feedComment.user.uid.value
             }
 
             val feed = FeedsTable.select { FeedsTable.id eq UUID.fromString(feedId) }.firstOrNull()
@@ -194,20 +248,22 @@ class DefaultFeedDao : FeedDao {
                 return@query null
             }
 
-            val user = UsersTable.select { UsersTable.uid eq feedComment.user.uid }.firstOrNull()?.toUser()
-            val reactions = ReactionsTable.select {
-                ReactionsTable.reactionTo eq UUID.fromString(feedCommentId).toString()
-            }.count()
+            val user =
+                UsersTable.select { UsersTable.uid eq feedComment.user.uid.value }.first()
+                    .toUser()
+            val reactions =
+                ReactionsTable.select { ReactionsTable.reactionTo eq feed[FeedsTable.id].toString() }
+                    .map {
+                        val reactionUser =
+                            UsersTable.select { UsersTable.uid eq it[ReactionsTable.user] }.first()
+                                .toUser()
+                        it.toReaction(user = reactionUser)
+                    }
 
-            return@query FeedComments.select { FeedComments.id eq UUID.fromString(feedCommentId) }.firstOrNull()
+            return@query FeedComments.select { FeedComments.id eq UUID.fromString(feedCommentId) }
+                .firstOrNull()
                 ?.toFeedComment(
-                    feed = feed.toFeed(
-                        reactions = reactions,
-                        comments = 0,
-                        shares = 0,
-                        user = user!!,
-                        media = emptyList()
-                    ),
+                    feed = FeedId(""),
                     reactions = emptyList(),
                     user = user
                 )
@@ -240,7 +296,11 @@ class DefaultFeedDao : FeedDao {
         }
     }
 
-    override suspend fun createFeedReaction(feedId: String, reactionType: ReactionType, userId: String): Reaction {
+    override suspend fun createFeedReaction(
+        feedId: String,
+        reactionType: ReactionType,
+        userId: String,
+    ): Reaction {
         return Db.query {
             val insertReactionStatement = ReactionsTable.insert {
                 it[user] = userId
@@ -276,7 +336,10 @@ class DefaultFeedDao : FeedDao {
         }
     }
 
-    override suspend fun createFeedCommentReaction(feedCommentId: String, userId: String): Reaction {
+    override suspend fun createFeedCommentReaction(
+        feedCommentId: String,
+        userId: String,
+    ): Reaction {
         return Db.query {
             val insertReactionStatement = ReactionsTable.insert {
                 it[user] = userId

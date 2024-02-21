@@ -9,8 +9,14 @@ import data.challenges.DefaultChallengesRepository
 import data.challenges.remote.ChallengeNetworkDataSource
 import data.challenges.remote.DefaultChallengeNetworkDataSource
 import data.dataStorePreferences
+import data.feed.DefaultFeedRepository
+import data.feed.FeedRepository
+import data.feed.remote.DefaultFeedNetworkDataSource
+import data.feed.remote.FeedNetworkDataSource
 import data.users.DefaultUsersRepository
 import data.users.UsersRepository
+import data.users.local.DefaultUsersLocalDataSource
+import data.users.local.UsersLocalDataSource
 import data.users.remote.DefaultUserNetworkDataSource
 import data.users.remote.UserNetworkDataSource
 import dev.gitlive.firebase.Firebase
@@ -22,10 +28,11 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
 import org.koin.dsl.module
 
-val appModule = module {
+fun appModule(isProduction: Boolean = true) = module {
     single<FirebaseAuth> {
         val auth = Firebase.auth
-        auth.useEmulator("10.0.2.2", 9099)
+
+        if (!isProduction) auth.useEmulator("10.0.2.2", 9099)
 
         return@single auth
     }
@@ -35,7 +42,7 @@ val appModule = module {
     }
 
     single<UsersRepository> {
-        DefaultUsersRepository(userNetworkDataSource = get())
+        DefaultUsersRepository(userNetworkDataSource = get(), usersLocalDataSource = get())
     }
 
     single<ChallengeNetworkDataSource> {
@@ -61,4 +68,14 @@ val appModule = module {
     single<ChallengesRepository> {
         DefaultChallengesRepository(challengeNetworkDataSource = get())
     }
+
+    single<UsersLocalDataSource> { DefaultUsersLocalDataSource(database = get()) }
+
+    single<FeedRepository> {
+        DefaultFeedRepository(
+            feedNetworkDataSource = get(),
+        )
+    }
+
+    single<FeedNetworkDataSource> { DefaultFeedNetworkDataSource(httpClient = get()) }
 }

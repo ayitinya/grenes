@@ -68,7 +68,7 @@ class TestUserDao : KoinTest {
             )
             val user = UsersTable.select { UsersTable.email eq email }.map {
                 User(
-                    uid = it[UsersTable.uid],
+                    uid = UserId(it[UsersTable.uid]),
                     displayName = it[UsersTable.displayName],
                     email = it[UsersTable.email],
                     createdAt = it[UsersTable.createdAt],

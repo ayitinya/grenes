@@ -1,4 +1,5 @@
-import androidx.compose.ui.window.ComposeUIViewController
+import androidx.compose.runtime.Composable
 import moe.tlaster.precompose.PreComposeApp
 
+@Composable
 fun MainViewController() = PreComposeApp { App() }

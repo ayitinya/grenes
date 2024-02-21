@@ -31,7 +31,6 @@ kotlin {
             implementation(libs.insert.koin.koin.core)
             // put your Multiplatform dependencies here
 
-//            implementation(libs.ktor.server.resources)
             implementation(libs.ktor.client.resources)
 
             api(libs.kotlinx.serialization.json)

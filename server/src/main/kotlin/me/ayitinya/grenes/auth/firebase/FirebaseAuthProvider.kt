@@ -32,7 +32,6 @@ class FirebaseAuthProvider(config: FirebaseConfig) : AuthenticationProvider(conf
 
         try {
             val principal = verifyFirebaseIdToken(context.call, token, authFunction)
-
             if (principal != null) {
                 context.principal(principal)
             } else {
@@ -56,7 +55,7 @@ class FirebaseAuthProvider(config: FirebaseConfig) : AuthenticationProvider(conf
 suspend fun verifyFirebaseIdToken(
     call: ApplicationCall,
     authHeader: HttpAuthHeader,
-    tokenData: suspend ApplicationCall.(FirebaseToken) -> Principal?
+    tokenData: suspend ApplicationCall.(FirebaseToken) -> Principal?,
 ): Principal? {
     val token: FirebaseToken = try {
         if (authHeader.authScheme == "Bearer" && authHeader is HttpAuthHeader.Single) {
@@ -66,7 +65,7 @@ suspend fun verifyFirebaseIdToken(
         } else {
             null
         }
-    } catch (ex: Exception) {
+    } catch (ex: Throwable) {
         ex.printStackTrace()
         return null
     } ?: return null
@@ -78,7 +77,7 @@ fun HttpAuthHeader.Companion.bearerAuthChallenge(realm: String): HttpAuthHeader 
 
 fun AuthenticationConfig.firebase(
     name: String? = FIREBASE_AUTH,
-    configure: FirebaseConfig.() -> Unit
+    configure: FirebaseConfig.() -> Unit,
 ) {
     val provider = FirebaseAuthProvider(FirebaseConfig(name).apply(configure))
     register(provider)

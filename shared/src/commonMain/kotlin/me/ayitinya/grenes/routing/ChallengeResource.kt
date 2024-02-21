@@ -1,10 +1,12 @@
 package me.ayitinya.grenes.routing
 
 import io.ktor.resources.*
+import me.ayitinya.grenes.data.users.UserId
 
 @Resource("/challenge")
 class ChallengeResource(
     val suggestedBy: String? = null,
+    val userId: UserId? = null,
     val challengeType: List<String>? = null,
     val date: String? = null,
     val isActive: Boolean? = null,

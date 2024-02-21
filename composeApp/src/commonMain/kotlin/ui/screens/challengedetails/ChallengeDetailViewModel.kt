@@ -12,16 +12,18 @@ import moe.tlaster.precompose.viewmodel.viewModelScope
 
 class ChallengeDetailViewModel(private val uid: String, private val challengesRepository: ChallengesRepository) :
     ViewModel() {
-    private val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState(challenge = null)).also {
+    private val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState(challenge = null))
+    val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+
+    init {
         viewModelScope.launch {
             val challenge = challengesRepository.getChallenge(uid)
-            it.update { state -> state.copy(challenge = challenge, loading = false) }
+            _uiState.update { state -> state.copy(challenge = challenge, loading = false) }
         }
     }
-    val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 }
 
 data class UiState(
     val challenge: Challenge?,
-    val loading: Boolean = true
+    val loading: Boolean = true,
 )

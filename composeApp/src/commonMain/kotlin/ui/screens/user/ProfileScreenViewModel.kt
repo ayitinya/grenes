@@ -1,17 +1,21 @@
 package ui.screens.user
 
 import data.auth.AuthState
+import data.feed.FeedRepository
 import data.users.UsersRepository
 import domain.AuthenticationUseCase
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import me.ayitinya.grenes.data.users.UserId
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
+import ui.screens.State
 
-class ProfileScreenViewModel(
-    private val uid: String,
+internal class ProfileScreenViewModel(
+    private val uid: UserId,
     private val usersRepository: UsersRepository,
-    private val authenticationUseCase: AuthenticationUseCase
+    private val feedRepository: FeedRepository,
+    private val authenticationUseCase: AuthenticationUseCase,
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<ProfileScreenState> = MutableStateFlow(
@@ -22,16 +26,24 @@ class ProfileScreenViewModel(
 
     init {
         viewModelScope.launch {
-            authenticationUseCase.getAuthState().take(1).collect { authState ->
-                if (authState is AuthState.Authenticated) {
-                    if (authState.uid == uid || uid.isEmpty()) {
-                        _uiState.update {
-                            it.copy(isOwnUser = true)
+            launch {
+                authenticationUseCase.getAuthState().take(1).collect { authState ->
+                    if (authState is AuthState.Authenticated) {
+                        if (authState.user.uid.value == uid.value) {
+                            _uiState.update {
+                                it.copy(isOwnUser = true)
+                            }
                         }
+                        getUserInfo()
                     }
+                }
+            }
 
-                    getUserInfo()
-
+            launch {
+                feedRepository.read(userId = uid).let { challenges ->
+                    _uiState.update {
+                        it.copy(feed = State.Success(challenges))
+                    }
                 }
             }
         }
@@ -43,14 +55,14 @@ class ProfileScreenViewModel(
                 usersRepository.getUser().let { user ->
                     if (user != null) {
                         _uiState.update {
-                            it.copy(user = user, loadingState = LoadingState.Success)
+                            it.copy(user = State.Success(user))
                         }
                     }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
                 _uiState.update {
-                    it.copy(loadingState = LoadingState.Error(e.message))
+                    it.copy(user = State.Error(e.message))
                 }
             }
         } else {
@@ -58,14 +70,14 @@ class ProfileScreenViewModel(
                 usersRepository.getUser(uid).let { user ->
                     if (user != null) {
                         _uiState.update {
-                            it.copy(user = user, loadingState = LoadingState.Success)
+                            it.copy(user = State.Success(user))
                         }
                     }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
                 _uiState.update {
-                    it.copy(loadingState = LoadingState.Error(e.message))
+                    it.copy(user = State.Error(e.message))
                 }
             }
 

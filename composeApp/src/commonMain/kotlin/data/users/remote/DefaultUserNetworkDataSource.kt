@@ -9,35 +9,36 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import me.ayitinya.grenes.data.users.User
+import me.ayitinya.grenes.data.users.UserId
 
 
 class DefaultUserNetworkDataSource(private val httpClient: HttpClient) : UserNetworkDataSource {
 
-    override suspend fun getUser(uid: String): User? {
+    override suspend fun getUser(uid: UserId): User? {
         return try {
             withContext(Dispatchers.IO) {
                 httpClient.get("/users/me").body<User>()
             }
         } catch (exception: Exception) {
-            println("Error: ${exception.message} - ${exception.cause}")
             exception.printStackTrace()
             null
         }
     }
 
-    override suspend fun getCurrentUser(): User? {
-        println("getting current user")
-
+    override suspend fun getCurrentUser(): User {
         return try {
             withContext(Dispatchers.IO) {
-                val res = httpClient.get("/users/me").body<User?>()
-                println("res -> $res")
-                res
+                val res = httpClient.get("/users/me")
+
+                if (res.status == HttpStatusCode.NotFound) {
+                    throw Exception("User not found")
+                }
+
+                res.body<User>()
             }
-        } catch (exception: Exception) {
-            println("Error: ${exception.message} - ${exception.cause}")
-            exception.printStackTrace()
-            throw exception
+        } catch (cause: Throwable) {
+            cause.printStackTrace()
+            throw cause
         }
     }
 
@@ -57,7 +58,7 @@ class DefaultUserNetworkDataSource(private val httpClient: HttpClient) : UserNet
                 }
                 setBody(
                     User(
-                        uid = uid,
+                        uid = UserId(uid),
                         displayName = displayName,
                         email = email,
                         createdAt = Clock.System.now(),
@@ -66,7 +67,6 @@ class DefaultUserNetworkDataSource(private val httpClient: HttpClient) : UserNet
                 )
             }
         } catch (e: Exception) {
-            println("Error: ${e.message} - ${e.cause}")
             e.printStackTrace()
             throw e
         }
@@ -79,14 +79,14 @@ class DefaultUserNetworkDataSource(private val httpClient: HttpClient) : UserNet
         photoUrl: String?,
         displayName: String,
         city: String,
-        country: String
+        country: String,
     ) {
         try {
             httpClient.put("/users/me") {
                 contentType(ContentType.Application.Json)
                 setBody(
                     User(
-                        uid = uid,
+                        uid = UserId(uid),
                         displayName = displayName,
                         email = email,
                         createdAt = Clock.System.now(),
@@ -107,14 +107,14 @@ class DefaultUserNetworkDataSource(private val httpClient: HttpClient) : UserNet
         photoUrl: String?,
         displayName: String,
         city: String,
-        country: String
+        country: String,
     ) {
         try {
             httpClient.post("/users/me") {
                 contentType(ContentType.Application.Json)
                 setBody(
                     User(
-                        uid = uid,
+                        uid = UserId(uid),
                         displayName = displayName,
                         email = email,
                         createdAt = Clock.System.now(),

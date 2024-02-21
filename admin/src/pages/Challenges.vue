@@ -11,18 +11,33 @@ import '@vuepic/vue-datepicker/dist/main.css'
 // @ts-ignore
 import Multiselect from 'vue-multiselect'
 import type { Challenge, ChallengeType } from '@/types'
+import { useFirebaseAuth } from 'vuefire'
+
+const auth = useFirebaseAuth()
 
 const challenges = ref<Challenge[]>([])
 const challengeTypes = ref<ChallengeType[]>([])
 
 await Promise.all([
-  http.get<Challenge[]>('/challenge').then((response) => {
-    challenges.value = response.data
-  }),
+  http
+    .get<Challenge[]>('/challenge', {
+      headers: {
+        Authorization: `Bearer ${await auth?.currentUser?.getIdToken()}`
+      }
+    })
+    .then((response) => {
+      challenges.value = response.data
+    }),
 
-  http.get<ChallengeType[]>('/challenge/types').then((response) => {
-    challengeTypes.value = response.data
-  })
+  http
+    .get<ChallengeType[]>('/challenge/types', {
+      headers: {
+        Authorization: `Bearer ${await auth?.currentUser?.getIdToken()}`
+      }
+    })
+    .then((response) => {
+      challengeTypes.value = response.data
+    })
 ])
 
 const closeDrawer = () => {
@@ -44,30 +59,68 @@ const editChallenge = (challenge: Challenge) => {
   challengeCreation.isActive = challenge.isActive
   challengeCreation.createdAt = challenge.createdAt
   challengeCreation.challengeTypes = challenge.challengeTypes
+  challengeCreation.isTrackable = challenge.isTrackable
+  challengeCreation.difficulty = challenge.difficulty
   addChallengeDialog.value = true
 }
 
 const createChallenge = async () => {
   if (challengeCreation.uid) {
-    await http.put(`/challenge/${challengeCreation.uid}`, challengeCreation)
+    await http.put(`/challenge/${challengeCreation.uid}`, challengeCreation, {
+      headers: {
+        Authorization: `Bearer ${await auth?.currentUser?.getIdToken()}`
+      }
+    })
 
     return
   }
 
-  await http.post('/challenge', reactiveOmit(challengeCreation, ['uid', 'isActive', 'createdAt']))
-  await http.get<Challenge[]>('/challenge').then((response) => {
-    challenges.value = response.data
-  })
+  await http.post(
+    '/challenge',
+    reactiveOmit(challengeCreation, ['uid', 'isActive', 'createdAt', 'isTrackable', 'difficulty']),
+    {
+      headers: {
+        Authorization: `Bearer ${await auth?.currentUser?.getIdToken()}`
+      }
+    }
+  )
+  await http
+    .get<Challenge[]>('/challenge', {
+      headers: {
+        Authorization: `Bearer ${await auth?.currentUser?.getIdToken()}`
+      }
+    })
+    .then((response) => {
+      challenges.value = response.data
+    })
   addChallengeDialog.value = false
 }
 
 const createChallengeType = async (challengeType: string) => {
-  const { data: createdType } = await http.post('/challenge/types', challengeType)
+  const { data: createdType } = await http.post('/challenge/types', challengeType, {
+    headers: {
+      Authorization: `Bearer ${await auth?.currentUser?.getIdToken()}`
+    }
+  })
   challengeTypes.value.push(createdType)
   challengeCreation.challengeTypes.push(createdType)
 }
 
 const addChallengeDialog = ref(false)
+
+const addNewChallenge = () => {
+  addChallengeDialog.value = true
+
+  challengeCreation.uid = null
+  challengeCreation.title = ''
+  challengeCreation.description = ''
+  challengeCreation.startAt = null
+  challengeCreation.endAt = null
+  challengeCreation.isActive = null
+  challengeCreation.createdAt = null
+  challengeCreation.isTrackable = null
+  challengeCreation.difficulty = null
+}
 
 const challengeCreation = reactive<{
   uid: string | null
@@ -78,6 +131,8 @@ const challengeCreation = reactive<{
   endAt: string | null
   isActive: boolean | null
   createdAt: string | null
+  isTrackable: boolean | null
+  difficulty: string | null
 }>({
   uid: null,
   title: '',
@@ -86,7 +141,9 @@ const challengeCreation = reactive<{
   startAt: null,
   endAt: null,
   isActive: null,
-  createdAt: null
+  createdAt: null,
+  isTrackable: null,
+  difficulty: null
 })
 
 // const selectedChallengeType = ref<ChallengeType[]>([])
@@ -110,7 +167,7 @@ const headers = [
 
 <template>
   <Default style-class="">
-    <VBtn @click="addChallengeDialog = true">Add Challenge</VBtn>
+    <VBtn @click="addNewChallenge">Add Challenge</VBtn>
     <VDataTable
       :headers="headers"
       :items="challenges"
@@ -180,11 +237,16 @@ const headers = [
               />
               <VueDatePicker v-model="challengeCreation.startAt" utc></VueDatePicker>
               <VueDatePicker v-model="challengeCreation.endAt" utc></VueDatePicker>
-              <v-checkbox
-                v-model="challengeCreation.isActive"
-                label="Is Active"
-                v-if="challengeCreation.uid != null"
-              />
+              <template v-if="challengeCreation.uid != null">
+                <v-checkbox v-model="challengeCreation.isActive" label="Is Active" />
+                <v-checkbox v-model="challengeCreation.isTrackable" label="Is Trackable" />
+
+                <v-radio-group v-model="challengeCreation.difficulty">
+                  <v-radio label="Easy" value="EASY" />
+                  <v-radio label="Medium" value="MEDIUM" />
+                  <v-radio label="Hard" value="HARD" />
+                </v-radio-group>
+              </template>
             </v-form>
           </v-card-text>
         </v-card>

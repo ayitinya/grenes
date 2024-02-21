@@ -13,8 +13,8 @@ import me.ayitinya.grenes.data.users.User
 * And NPEs would be thrown
  */
 
-enum class ChallengeDifficulty {
-    EASY, MEDIUM, HARD
+enum class ChallengeDifficulty(val value: String) {
+    EASY("EASY"), MEDIUM("MEDIUM"), HARD("HARD")
 }
 
 @Serializable

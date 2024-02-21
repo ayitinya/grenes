@@ -3,8 +3,7 @@ import { useFirebaseAuth } from 'vuefire'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { reactive, ref } from 'vue'
 
-import { RouterLink, useRoute, useRouter } from 'vue-router'
-import HelloWorld from '@/components/HelloWorld.vue'
+import { useRoute, useRouter } from 'vue-router'
 
 const router = useRouter()
 
@@ -23,10 +22,20 @@ const signIn = async () => {
   try {
     if (auth) {
       await signInWithEmailAndPassword(auth, credentials.email, credentials.password).then(
-        async () =>
-          route.query.redirect
-            ? await router.push(route.query.redirect as string)
-            : await router.push({ name: 'home' })
+        async () => {
+          const user = auth.currentUser
+          const idTokenResult = await user?.getIdTokenResult()
+          const roles = idTokenResult?.claims.roles as Array<String>
+
+          if (!roles.includes('superAdmin')) {
+            await auth.signOut()
+            await router.push({ name: 'login' })
+          } else {
+            route.query.redirect
+              ? await router.push(route.query.redirect as string)
+              : await router.push({ name: 'home' })
+          }
+        }
       )
     }
   } catch (e) {
@@ -36,19 +45,6 @@ const signIn = async () => {
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
-
   <div>
     <v-img
       class="mx-auto my-6"

@@ -1,21 +1,27 @@
 package me.ayitinya.grenes.data.media
 
 import me.ayitinya.grenes.data.Db
-import me.ayitinya.grenes.data.users.UsersTable
+import me.ayitinya.grenes.data.feed.FeedId
+import me.ayitinya.grenes.data.users.UserId
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
-import java.util.UUID
+import java.util.*
 
 class DefaultMediaDao : MediaDao {
-    override suspend fun insert(fileUrl: String, types: FileTypes, uid: String) {
-        Db.query {
-            MediaTable.insert {
-                it[MediaTable.fileUrl] = fileUrl
-                it[MediaTable.type] = types
-                it[MediaTable.user] = UsersTable.select { UsersTable.uid eq uid }.single()[UsersTable.uid]
+    override suspend fun insert(fileUrl: String, types: String, uid: UserId, feedId: FeedId) {
+        try {
+            Db.query {
+                MediaTable.insert {
+                    it[MediaTable.fileUrl] = fileUrl
+                    it[MediaTable.fileType] = types
+                    it[MediaTable.user] = uid.value
+                    it[MediaTable.feed] = UUID.fromString(feedId.value)
+                }
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
         }
     }
 

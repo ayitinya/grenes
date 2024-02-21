@@ -1,13 +1,11 @@
 package me.ayitinya.grenes.data.media
 
+import me.ayitinya.grenes.data.feed.FeedId
+import me.ayitinya.grenes.data.users.UserId
 import java.util.UUID
 
 interface MediaDao {
-    suspend fun insert(
-        fileUrl: String,
-        types: FileTypes,
-        uid: String
-    )
+    suspend fun insert(fileUrl: String, types: String, uid: UserId, feedId: FeedId)
 
     suspend fun delete(id: UUID)
 

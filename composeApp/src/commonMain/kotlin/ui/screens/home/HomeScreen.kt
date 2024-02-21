@@ -1,28 +1,88 @@
 package ui.screens.home
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
+import app.cash.paging.compose.LazyPagingItems
+import app.cash.paging.compose.collectAsLazyPagingItems
+import data.auth.AuthState
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import me.ayitinya.grenes.data.feed.Feed
+import me.ayitinya.grenes.data.feed.FeedId
+import me.ayitinya.grenes.data.feed.Reaction
+import me.ayitinya.grenes.data.feed.ReactionId
+import me.ayitinya.grenes.data.feed.ReactionType
+import me.ayitinya.grenes.data.users.UserId
 import moe.tlaster.precompose.koin.koinViewModel
-import ui.catalog.PostCard
+import moe.tlaster.precompose.viewmodel.viewModelScope
+import navigation.SharedViewModel
+import ui.catalog.FeedCard
+import ui.catalog.UserReactedState
 
 @Composable
 fun HomeScreenUi(
-    modifier: Modifier = Modifier, viewModel: HomeViewModel = koinViewModel(HomeViewModel::class)
+    makeSubmission: () -> Unit,
+    navigateToFeed: (feedId: FeedId) -> Unit = {},
+    modifier: Modifier = Modifier, viewModel: HomeViewModel = koinViewModel(HomeViewModel::class),
+    sharedViewModel: SharedViewModel = koinViewModel(
+        SharedViewModel::class
+    ),
 ) {
-    HomeScreenUi(modifier)
+    val feeds = viewModel.feeds.collectAsLazyPagingItems()
+
+    HomeScreenUi(
+        onFabClick = makeSubmission,
+        navigateToFeed = navigateToFeed,
+        modifier = modifier,
+        feeds = feeds,
+        userId = (sharedViewModel.uiState.value.authState as AuthState.Authenticated).user.uid,
+        reactToFeed = { feedId: FeedId, index: Int ->
+            viewModel.viewModelScope.launch {
+                viewModel.reactToFeed(
+                    feedId = feedId,
+                    userId = (sharedViewModel.uiState.value.authState as AuthState.Authenticated).user.uid,
+                    index = index
+                ).let { reaction ->
+                    feeds[index]!!.reactionsList.add(reaction)
+                }
+            }
+        }, removeReaction = { reactionId: ReactionId, index: Int ->
+            viewModel.viewModelScope.launch {
+                viewModel.removeReaction(reactionId)
+                try {
+                    feeds[index]!!.reactionsList.removeAt(index)
+                } catch (e: IndexOutOfBoundsException) {
+                    println("Index out of bounds")
+                }
+            }
+        }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun HomeScreenUi(modifier: Modifier = Modifier) {
+private fun HomeScreenUi(
+    onFabClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    feeds: LazyPagingItems<Feed>,
+    navigateToFeed: (feedId: FeedId) -> Unit = { },
+    userId: UserId,
+    reactToFeed: (feedId: FeedId, index: Int) -> Unit = { _: FeedId, _: Int -> run {} },
+    removeReaction: (reactionId: ReactionId, index: Int) -> Unit = { _: ReactionId, _: Int -> run {} },
+) {
     Scaffold(modifier = modifier, topBar = {
         TopAppBar(title = { Text(text = "Feed") }, actions = {
             Row {
@@ -31,28 +91,65 @@ private fun HomeScreenUi(modifier: Modifier = Modifier) {
                 }
             }
         })
+    }, floatingActionButton = {
+        FloatingActionButton(onClick = onFabClick) {
+            Icon(Icons.Default.Edit, null)
+        }
     }) { innerPadding ->
-        LazyColumn(contentPadding = innerPadding, modifier = Modifier.padding(horizontal = 8.dp)) {
-            item {
-                PostCard(modifier = Modifier.padding(vertical = 8.dp))
-                Divider(modifier = Modifier.fillParentMaxWidth())
+        LazyColumn(contentPadding = innerPadding, modifier = Modifier) {
+            if (feeds.loadState.refresh == LoadState.Loading) {
+                item {
+                    CircularProgressIndicator(
+                        modifier = Modifier.fillMaxWidth()
+                            .wrapContentWidth(Alignment.CenterHorizontally)
+                    )
+                }
             }
 
-            item {
-                PostCard(modifier = Modifier.padding(vertical = 8.dp))
-                Divider(modifier = Modifier.fillParentMaxWidth())
+            items(feeds.itemCount) {
+                println("recomposing")
+
+                val r = feeds[it]?.reactionsList?.map { reactions -> reactions.user.uid }
+                val uhr = if (r?.contains(userId) == true) {
+                    feeds[it]!!.reactionsList[r.indexOf(userId)]
+                } else {
+                    null
+                }
+
+                val userHasReact by remember {
+                    derivedStateOf {
+                        val r = feeds[it]?.reactionsList?.map { reactions -> reactions.user.uid }
+                        if (r?.contains(userId) == true) {
+                            feeds[it]!!.reactionsList[r.indexOf(userId)]
+                        } else {
+                            null
+                        }
+                    }
+                }
+                val userHasReacted by remember {
+                    derivedStateOf {
+                        val r = feeds[it]?.reactionsList?.map { reactions -> reactions.user.uid }
+                        r?.contains(userId) ?: false
+                    }
+                }
+
+                FeedCard(
+                    feed = feeds[it]!!,
+                    onClick = navigateToFeed,
+                    navigateToChallenge = {},
+                    reactToFeed = { feedId -> reactToFeed(feedId, it) },
+                    removeReaction = { reactionId -> removeReaction(reactionId, it) },
+                    userHasReacted = if (uhr != null) UserReactedState.Reacted(uhr) else UserReactedState.NotReacted,
+                )
             }
-            item {
-                PostCard(modifier = Modifier.padding(vertical = 8.dp))
-                Divider(modifier = Modifier.fillParentMaxWidth())
-            }
-            item {
-                PostCard(modifier = Modifier.padding(vertical = 8.dp))
-                Divider(modifier = Modifier.fillParentMaxWidth())
-            }
-            item {
-                PostCard(modifier = Modifier.padding(vertical = 8.dp))
-                Divider(modifier = Modifier.fillParentMaxWidth())
+
+            if (feeds.loadState.append == LoadState.Loading) {
+                item {
+                    CircularProgressIndicator(
+                        modifier = Modifier.fillMaxWidth()
+                            .wrapContentWidth(Alignment.CenterHorizontally)
+                    )
+                }
             }
         }
     }

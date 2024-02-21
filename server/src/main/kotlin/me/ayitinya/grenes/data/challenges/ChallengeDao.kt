@@ -1,6 +1,7 @@
 package me.ayitinya.grenes.data.challenges
 
 import kotlinx.datetime.Instant
+import me.ayitinya.grenes.data.users.UserId
 import java.util.*
 
 interface ChallengeDao {
@@ -10,7 +11,7 @@ interface ChallengeDao {
         suggestedBy: String?,
         challengeTypes: List<UUID>,
         startDate: Instant?,
-        endDate: Instant?
+        endDate: Instant?,
     ): Challenge?
 
     suspend fun createChallengeType(name: String): ChallengeType?
@@ -22,10 +23,11 @@ interface ChallengeDao {
     suspend fun read(uid: UUID): Challenge?
 
     suspend fun read(
+        userId: UserId? = null,
         challengeType: List<String>? = null,
         date: Instant? = null,
         suggestedBy: String? = null,
-        isActive: Boolean? = null
+        isActive: Boolean? = null,
     ): List<Challenge>
 
     suspend fun update(uid: UUID, challenge: Challenge): Int

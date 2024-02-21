@@ -31,13 +31,15 @@ fun Application.di() {
     val datasourceProperties = environment.config.propertyOrNull("ktor.db.datasourceProperties")
         ?.getList()
         ?.associate { it.split(":", limit = 2).let { (k, v) -> k to v } }
+    val isProduction = environment.config.propertyOrNull("ktor.development")?.getString() == "false"
+
+    println("dbUser: $userName password: $password")
 
     install(Koin) {
         slf4jLogger()
 
-
         modules(
-            appModule,
+            appModule(isProduction = isProduction),
             initializeDbModule(
                 driverClassName = driverClassName,
                 jdbcURL = jdbcURL,
@@ -46,18 +48,6 @@ fun Application.di() {
                 dataSourceProperties = datasourceProperties ?: emptyMap()
             )
         )
-    }
-
-    environment.monitor.subscribe(KoinApplicationStarted) {
-        log.info("Koin started.")
-    }
-
-    environment.monitor.subscribe(KoinApplicationStopPreparing) {
-        log.info("Koin stopping...")
-    }
-
-    environment.monitor.subscribe(KoinApplicationStopped) {
-        log.info("Koin stopped.")
     }
 }
 
@@ -75,7 +65,8 @@ fun Application.main(testing: Boolean = false) {
         configureDb()
 
         Sentry.init { options ->
-            options.dsn = "https://3ca0752869f44d5aba59b065c69fb597@o1104921.ingest.sentry.io/4505248530563072"
+            options.dsn =
+                "https://3ca0752869f44d5aba59b065c69fb597@o1104921.ingest.sentry.io/4505248530563072"
 
             // Set traces_sample_rate to 1.0 to capture 100%
             // of transactions for performance monitoring.

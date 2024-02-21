@@ -14,7 +14,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import org.koin.dsl.module
 
-val httpClientModule = module {
+fun httpClientModule(url: URLBuilder) = module {
     single(createdAtStart = true) {
         HttpClient {
 
@@ -31,9 +31,7 @@ val httpClientModule = module {
                 header("Content-Type", "application/json")
 
                 url {
-                    protocol = URLProtocol.HTTP
-                    port = 8080
-                    host = "10.0.2.2"
+                    takeFrom(url)
                 }
 
                 if (firebase.currentUser != null) {
@@ -44,16 +42,13 @@ val httpClientModule = module {
                             } catch (e: Exception) {
                                 firebase.signOut()
                             }
-                            header(
-                                "Authorization", "Bearer $token"
-                            )
+                            header("Authorization", "Bearer $token")
                         }
                     } catch (e: Exception) {
                         e.printStackTrace()
                         throw Exception("Error getting token")
                     }
                 }
-
             }
 
 //            install(HttpRequestRetry) {
@@ -69,7 +64,6 @@ val httpClientModule = module {
                     isLenient = false
                 })
             }
-
         }
     }
 }

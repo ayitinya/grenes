@@ -2,6 +2,9 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/pages/index.vue'
 import { getCurrentUser } from 'vuefire'
 
+// const DEV_MODE = false
+const DEV_MODE = import.meta.env.MODE === 'development'
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -10,7 +13,7 @@ const router = createRouter({
       name: 'home',
       component: HomeView,
       meta: {
-        requiresAuth: false
+        requiresAuth: !DEV_MODE
       }
     },
     {
@@ -23,7 +26,7 @@ const router = createRouter({
       name: 'challenges',
       component: () => import('@/pages/Challenges.vue'),
       meta: {
-        requiresAuth: false
+        requiresAuth: !DEV_MODE
       }
     },
     {

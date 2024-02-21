@@ -52,7 +52,7 @@ val dbModule = module {
 
 }
 
-val appModule = module {
+fun appModule(isProduction: Boolean = true) = module {
     single<UserDao> { DefaultUserDao() }
 
     single(createdAtStart = true) {
@@ -73,5 +73,10 @@ val appModule = module {
 
     single<Storage>(named("mockStorage")) { MockStorage() }
 
-    single<MediaService> { DefaultMediaService(storage = get(), mediaDao = get()) }
+    single<MediaService> {
+        DefaultMediaService(
+            storage = if (isProduction) get() else get(named("mockStorage")),
+            mediaDao = get()
+        )
+    }
 }

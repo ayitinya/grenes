@@ -3,6 +3,7 @@ package data.challenges
 import data.challenges.remote.ChallengeNetworkDataSource
 import me.ayitinya.grenes.data.challenges.Challenge
 import me.ayitinya.grenes.data.challenges.ChallengeCreation
+import me.ayitinya.grenes.data.users.UserId
 
 class DefaultChallengesRepository(private val challengeNetworkDataSource: ChallengeNetworkDataSource) :
     ChallengesRepository {
@@ -11,6 +12,9 @@ class DefaultChallengesRepository(private val challengeNetworkDataSource: Challe
 
         return challenges
     }
+
+    override suspend fun getUserChallenges(userId: UserId): List<Challenge> =
+        challengeNetworkDataSource.getUserChallenges(userId)
 
     override suspend fun getChallenge(uid: String): Challenge? {
         val challenge = challengeNetworkDataSource.getChallenge(uid)

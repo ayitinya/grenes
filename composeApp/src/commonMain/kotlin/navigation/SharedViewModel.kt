@@ -1,6 +1,8 @@
 package navigation
 
 import data.app.AppPreferences
+import data.auth.AuthState
+import data.users.UsersRepository
 import domain.AuthenticationUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +21,6 @@ class SharedViewModel(
     init {
         viewModelScope.launch {
             authenticationUseCase.getAuthState().collect { authState ->
-                println("authState: $authState")
                 _uiState.update { it.copy(authState = authState) }
 
                 if (uiState.value.initializing) {

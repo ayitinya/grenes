@@ -21,7 +21,8 @@ class FirebaseConfig(name: String?) : AuthenticationProvider.Config(name) {
     }
 }
 
-data class FirebaseUserPrincipal(val uid: String, val displayName: String) : Principal
+data class FirebaseUserPrincipal(val uid: String, val displayName: String, val roles: List<String> = emptyList()) :
+    Principal
 
 fun ApplicationRequest.parseAuthorizationHeaderOrNull(): HttpAuthHeader? = try {
     parseAuthorizationHeader()

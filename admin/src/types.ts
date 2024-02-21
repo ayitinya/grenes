@@ -15,4 +15,6 @@ export interface Challenge {
   isActive: boolean
   startAt: string
   endAt: string
+  isTrackable: boolean
+  difficulty: string
 }
