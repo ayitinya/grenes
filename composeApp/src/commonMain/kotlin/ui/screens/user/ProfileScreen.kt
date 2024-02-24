@@ -21,6 +21,7 @@ import org.koin.core.parameter.parametersOf
 import ui.catalog.ErrorScreen
 import ui.catalog.FeedCard
 import ui.catalog.Loading
+import ui.catalog.ProfilePhoto
 import ui.screens.State
 
 @Composable
@@ -63,9 +64,7 @@ internal fun UserScreen(
     posts: State<List<Feed>>,
 ) {
     Scaffold(topBar = {
-        TopAppBar(title = {
-            Text(text = "@$username", style = MaterialTheme.typography.titleLarge)
-        }, actions = {
+        TopAppBar(title = { }, actions = {
             if (isOwnUser) {
                 IconButton(onClick = { /*TODO*/ }) {
                     Icon(
@@ -92,10 +91,7 @@ internal fun UserScreen(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
-                    modifier = Modifier.size(60.dp).clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.secondary)
-                )
+                ProfilePhoto(displayName = displayName)
 
                 Column {
                     Text(text = displayName, style = MaterialTheme.typography.headlineSmall)

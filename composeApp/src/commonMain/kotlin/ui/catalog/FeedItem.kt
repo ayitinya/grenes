@@ -109,35 +109,7 @@ fun FeedCard(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(horizontal = 8.dp)
         ) {
-            KamelImage(
-                resource = asyncPainterResource(
-                    data = Url(
-                        "https://api.dicebear.com/7.x/initials/png?seed=${
-                            feed.user.displayName?.replace(
-                                " ",
-                                "%20"
-                            )
-                        }&randomizeIds=true"
-                    )
-                ),
-                contentDescription = null,
-                modifier = Modifier.clip(RoundedCornerShape(20)).size(40.dp),
-                onFailure = {
-                    it.printStackTrace()
-                    Box(
-                        modifier = Modifier.clip(RoundedCornerShape(20)).width(40.dp)
-                            .height(40.dp)
-                            .background(color = MaterialTheme.colorScheme.secondaryContainer)
-                    )
-                },
-                onLoading = {
-                    Box(
-                        modifier = Modifier.clip(RoundedCornerShape(20)).width(40.dp)
-                            .height(40.dp)
-                            .background(color = MaterialTheme.colorScheme.secondaryContainer)
-                    )
-                }
-            )
+            ProfilePhoto(displayName = feed.user.displayName ?: "")
 
             Column(modifier = Modifier.padding(8.dp)) {
                 Text(
