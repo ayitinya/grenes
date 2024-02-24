@@ -186,7 +186,7 @@ fun FeedCard(
 
         if (feed.media.isNotEmpty()) {
             Box(
-                modifier = Modifier.fillMaxWidth().height(200.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 val pagerState =
                     rememberPagerState(
@@ -204,8 +204,8 @@ fun FeedCard(
                     KamelImage(
                         resource = asyncPainterResource(data = Url(media.url)),
                         contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.FillBounds,
+                        modifier = Modifier.fillMaxWidth().aspectRatio(1f),
+                        contentScale = ContentScale.FillWidth,
                         onLoading = {
                             CircularProgressIndicator(
                                 modifier = Modifier.fillMaxWidth()
