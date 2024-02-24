@@ -38,6 +38,8 @@ kotlin {
             implementation(libs.multiplatform.settings.datastore)
             implementation(libs.accompanist.systemuicontroller)
 
+            implementation(libs.androidx.activity)
+
             implementation(libs.koin.android)
 
             implementation(project.dependencies.platform("com.google.firebase:firebase-bom:32.7.0"))
@@ -55,6 +57,7 @@ kotlin {
 
             api("dev.icerock.moko:resources:0.23.0")
             api("dev.icerock.moko:resources-compose:0.23.0")
+
         }
 
         commonTest.dependencies {
@@ -120,6 +123,7 @@ kotlin {
 //            implementation("com.airbnb.android:lottie-compose:6.3.0")
             implementation(libs.compottie)
 //            implementation("io.github.ismai117:kottie:1.4.3")
+            implementation("dev.gitlive:firebase-storage:1.11.1")
         }
 
         iosMain.dependencies {
