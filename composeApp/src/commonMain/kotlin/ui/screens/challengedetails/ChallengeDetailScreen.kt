@@ -1,6 +1,9 @@
 package ui.screens.challengedetails
 
+import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
@@ -20,7 +23,11 @@ fun ChallengeDetailScreen(
     navigateBack: () -> Unit,
     onMakeSubmission: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: ChallengeDetailViewModel = koinViewModel(ChallengeDetailViewModel::class) { parametersOf(uid) },
+    viewModel: ChallengeDetailViewModel = koinViewModel(ChallengeDetailViewModel::class) {
+        parametersOf(
+            uid
+        )
+    },
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -98,8 +105,11 @@ fun ChallengeDetailScreen(
             }
         }
     ) { paddingValues ->
+        val scrollState = rememberScrollState()
+
         Column(
-            modifier = Modifier.padding(paddingValues).padding(horizontal = 8.dp),
+            modifier = Modifier.padding(paddingValues).padding(horizontal = 8.dp)
+                .verticalScroll(scrollState),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
