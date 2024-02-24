@@ -103,10 +103,10 @@ fun ChallengeDetailScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = challenge.title ?: "No name available",
+                text = challenge.title,
                 style = MaterialTheme.typography.titleMedium
             )
-            Text(text = challenge.description ?: "No description available")
+            Text(text = challenge.description)
         }
     }
 }
