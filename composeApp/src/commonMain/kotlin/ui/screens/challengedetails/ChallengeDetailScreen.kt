@@ -108,7 +108,7 @@ fun ChallengeDetailScreen(
         val scrollState = rememberScrollState()
 
         Column(
-            modifier = Modifier.padding(paddingValues).padding(horizontal = 8.dp)
+            modifier = Modifier.padding(paddingValues).padding(horizontal = 8.dp).fillMaxSize()
                 .verticalScroll(scrollState),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
