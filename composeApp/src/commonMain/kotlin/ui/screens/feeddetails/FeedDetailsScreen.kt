@@ -40,6 +40,7 @@ import org.koin.core.parameter.parametersOf
 import ui.catalog.ErrorScreen
 import ui.catalog.FeedCard
 import ui.catalog.Loading
+import ui.catalog.ProfilePhoto
 
 @Composable
 fun FeedDetail(
@@ -64,37 +65,7 @@ fun FeedDetail(
             feed = feedState.feed,
             onNavigateUp = onNavigateUp,
             isOwnUser = uiState.value.isOwnUser,
-            userAvatar = {
-                KamelImage(
-                    resource = asyncPainterResource(
-                        data = Url(
-                            "https://api.dicebear.com/7.x/initials/png?seed=${
-                                (sharedViewModel.uiState.value.authState as AuthState.Authenticated).user.displayName?.replace(
-                                    " ",
-                                    "%20"
-                                )
-                            }&randomizeIds=true"
-                        )
-                    ),
-                    contentDescription = null,
-                    modifier = Modifier.clip(RoundedCornerShape(20)).size(35.dp),
-                    onFailure = {
-                        it.printStackTrace()
-                        Box(
-                            modifier = Modifier.clip(RoundedCornerShape(20)).width(40.dp)
-                                .height(40.dp)
-                                .background(color = MaterialTheme.colorScheme.secondaryContainer)
-                        )
-                    },
-                    onLoading = {
-                        Box(
-                            modifier = Modifier.clip(RoundedCornerShape(20)).width(40.dp)
-                                .height(40.dp)
-                                .background(color = MaterialTheme.colorScheme.secondaryContainer)
-                        )
-                    }
-                )
-            },
+            userAvatar = { ProfilePhoto(displayName = feedState.feed.user.displayName ?: "") },
             onComment = viewModel::comment
         )
     }
