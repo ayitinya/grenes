@@ -3,16 +3,23 @@ This is a Kotlin Multiplatform project targeting Android, iOS, Server.
 * The project was compiled with jdk 21
 
 * `/server` is for the Ktor server application.
-  * Firebase auth emulator must be running as a call is made to auth during server startup.
-  A service-account.json file is required in the `server/src/resources` directory to run the server.
-  Environment variables  `DB_USER` and `DB_PASSWORD` are required to connect to the database if
-  using Google Cloud SQL.
-  Testing locally with a local database does not require these environment variables and can be run
-  with `./gradlew server:run` with command line arguments `-config=test_application.yaml` to use the
-  local configuration.
+    * Firebase auth emulator must be running as a call is made to auth during server startup.
+      A service-account.json file is required in the `server/src/resources` directory to run the
+      server.
+      Environment variables  `DB_USER` and `DB_PASSWORD` are required to connect to the database if
+      using Google Cloud SQL.
+      Testing locally with a local database does not require these environment variables and can be
+      run
+      with `./gradlew server:run` with command line arguments `-config=test_application.yaml` to use
+      the
+      local configuration.
+      To upload the server to GAE, replace `/server/sample_app.yaml` with `/server/app.yaml` and
+      fill in the required environment variables. Then run `./gradlew server:appengineDeploy` to
+      deploy the
+
 
 * `/admin` is vue js application for the admin dashboard.
-  * The admin dashboard is a separate project and has a separate README.md file.
+    * The admin dashboard is a separate project and has a separate README.md file.
 
 
 * `/composeApp` is for code that will be shared across your Compose Multiplatform applications.
