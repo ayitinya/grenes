@@ -3,6 +3,7 @@ package me.ayitinya.grenes.data.users
 import io.ktor.util.logging.*
 import me.ayitinya.grenes.auth.Hashers.getHexDigest
 import me.ayitinya.grenes.data.Db
+import me.ayitinya.grenes.data.badge.Badge
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import java.util.*
@@ -36,6 +37,12 @@ class DefaultUserDao : UserDao {
                         updateStatement[username] = user.username
                         updateStatement[city] = user.city
                         updateStatement[country] = user.country
+
+                        user.badges.fold("") { acc, badge ->
+                            acc + badge.uid + ","
+                        }.let { badges ->
+                            updateStatement[UsersTable.badges] = badges
+                        }
                     }
                 } else {
                     createNewUserWithUidAndEmail(uid = uid, email = user.email)
@@ -58,7 +65,7 @@ class DefaultUserDao : UserDao {
 
 
     override suspend fun createNewUserWithEmailAndPassword(
-        userEmail: String, rawPassword: String
+        userEmail: String, rawPassword: String,
     ) {
         Db.query {
             UsersTable.insert {
@@ -90,16 +97,6 @@ class DefaultUserDao : UserDao {
     }
 
     override suspend fun getUserById(uid: String): User? = Db.query {
-        UsersTable.select { UsersTable.uid eq uid }.firstOrNull()?.let {
-            User(
-                uid = UserId(it[UsersTable.uid]),
-                displayName = it[UsersTable.displayName],
-                email = it[UsersTable.email],
-                createdAt = it[UsersTable.createdAt],
-                city = it[UsersTable.city],
-                country = it[UsersTable.country],
-                profileAvatar = it[UsersTable.profileAvatar]
-            )
-        }
+        UsersTable.select { UsersTable.uid eq uid }.firstOrNull()?.toUser()
     }
 }

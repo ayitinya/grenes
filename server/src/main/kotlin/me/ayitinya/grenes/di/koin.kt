@@ -65,7 +65,13 @@ fun appModule(isProduction: Boolean = true) = module {
 
     single<FeedDao> { DefaultFeedDao(challengeDao = get()) }
 
-    single<FeedService> { DefaultFeedService(mediaService = get(), feedDao = get()) }
+    single<FeedService> {
+        DefaultFeedService(
+            mediaService = get(),
+            feedDao = get(),
+            usersDao = get()
+        )
+    }
 
     single<MediaDao> { DefaultMediaDao() }
 

@@ -1,7 +1,9 @@
 package ui.screens.home
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -11,13 +13,17 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.paging.LoadState
 import app.cash.paging.compose.LazyPagingItems
 import app.cash.paging.compose.collectAsLazyPagingItems
 import data.auth.AuthState
+import dev.materii.pullrefresh.DragRefreshLayout
+import dev.materii.pullrefresh.rememberPullRefreshState
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import me.ayitinya.grenes.data.feed.Feed
@@ -96,59 +102,42 @@ private fun HomeScreenUi(
             Icon(Icons.Default.Edit, null)
         }
     }) { innerPadding ->
-        LazyColumn(contentPadding = innerPadding, modifier = Modifier) {
-            if (feeds.loadState.refresh == LoadState.Loading) {
-                item {
-                    CircularProgressIndicator(
-                        modifier = Modifier.fillMaxWidth()
-                            .wrapContentWidth(Alignment.CenterHorizontally)
+        val pullRefreshState = rememberPullRefreshState(
+            refreshing = feeds.loadState.refresh == LoadState.Loading,
+            onRefresh = feeds::refresh
+        )
+
+        DragRefreshLayout(
+            modifier = modifier.padding(innerPadding).fillMaxSize(),
+            state = pullRefreshState
+        ) {
+            LazyColumn {
+                items(feeds.itemCount) {
+
+                    val r = feeds[it]?.reactionsList?.map { reactions -> reactions.user.uid }
+                    val uhr = if (r?.contains(userId) == true) {
+                        feeds[it]!!.reactionsList[r.indexOf(userId)]
+                    } else {
+                        null
+                    }
+
+                    FeedCard(
+                        feed = feeds[it]!!,
+                        onClick = navigateToFeed,
+                        navigateToChallenge = {},
+                        reactToFeed = { feedId -> reactToFeed(feedId, it) },
+                        removeReaction = { reactionId -> removeReaction(reactionId, it) },
+                        userHasReacted = if (uhr != null) UserReactedState.Reacted(uhr) else UserReactedState.NotReacted,
                     )
                 }
-            }
 
-            items(feeds.itemCount) {
-                println("recomposing")
-
-                val r = feeds[it]?.reactionsList?.map { reactions -> reactions.user.uid }
-                val uhr = if (r?.contains(userId) == true) {
-                    feeds[it]!!.reactionsList[r.indexOf(userId)]
-                } else {
-                    null
-                }
-
-                val userHasReact by remember {
-                    derivedStateOf {
-                        val r = feeds[it]?.reactionsList?.map { reactions -> reactions.user.uid }
-                        if (r?.contains(userId) == true) {
-                            feeds[it]!!.reactionsList[r.indexOf(userId)]
-                        } else {
-                            null
-                        }
+                if (feeds.loadState.append == LoadState.Loading) {
+                    item {
+                        CircularProgressIndicator(
+                            modifier = Modifier.fillMaxWidth()
+                                .wrapContentWidth(Alignment.CenterHorizontally)
+                        )
                     }
-                }
-                val userHasReacted by remember {
-                    derivedStateOf {
-                        val r = feeds[it]?.reactionsList?.map { reactions -> reactions.user.uid }
-                        r?.contains(userId) ?: false
-                    }
-                }
-
-                FeedCard(
-                    feed = feeds[it]!!,
-                    onClick = navigateToFeed,
-                    navigateToChallenge = {},
-                    reactToFeed = { feedId -> reactToFeed(feedId, it) },
-                    removeReaction = { reactionId -> removeReaction(reactionId, it) },
-                    userHasReacted = if (uhr != null) UserReactedState.Reacted(uhr) else UserReactedState.NotReacted,
-                )
-            }
-
-            if (feeds.loadState.append == LoadState.Loading) {
-                item {
-                    CircularProgressIndicator(
-                        modifier = Modifier.fillMaxWidth()
-                            .wrapContentWidth(Alignment.CenterHorizontally)
-                    )
                 }
             }
         }

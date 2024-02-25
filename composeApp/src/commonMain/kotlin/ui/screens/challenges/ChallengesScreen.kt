@@ -17,13 +17,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.periodUntil
+import kotlinx.datetime.plus
+import kotlinx.datetime.toLocalDateTime
 import me.ayitinya.grenes.data.challenges.Challenge
 import moe.tlaster.precompose.koin.koinViewModel
+import kotlin.time.Duration
 
 @Composable
 fun ChallengesScreenUi(
     navigateToChallengeDetails: (String) -> Unit,
-    modifier: Modifier = Modifier, viewModel: ChallengesViewModel = koinViewModel(ChallengesViewModel::class)
+    modifier: Modifier = Modifier,
+    viewModel: ChallengesViewModel = koinViewModel(ChallengesViewModel::class),
 ) {
     val uiState = viewModel.uiState.collectAsState()
 
@@ -41,7 +49,7 @@ internal fun ChallengesScreenUi(
     dailyChallenges: List<Challenge> = emptyList(),
     monthlyChallenges: List<Challenge> = emptyList(),
     navigateToChallengeDetails: (String) -> Unit,
-    modifier: Modifier, selectedTabIndex: Int, onTabSelected: (Int) -> Unit
+    modifier: Modifier, selectedTabIndex: Int, onTabSelected: (Int) -> Unit,
 ) {
     Scaffold(modifier = modifier, topBar = {
         TabRow(
@@ -84,7 +92,7 @@ private fun ChallengesTab(
     dailyChallenges: List<Challenge>,
     monthlyChallenges: List<Challenge>,
     navigateToChallengeDetails: (String) -> Unit,
-    modifier: Modifier = Modifier.fillMaxWidth()
+    modifier: Modifier = Modifier.fillMaxWidth(),
 ) {
     Column(
         modifier = modifier,
@@ -95,34 +103,33 @@ private fun ChallengesTab(
         }
 
         Column(
-            modifier = Modifier.padding(horizontal = 8.dp).fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Row(
-                modifier = Modifier.padding(vertical = 8.dp).fillMaxWidth(),
+                modifier = Modifier.padding(8.dp).fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("Daily Challenges")
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    verticalAlignment = Alignment.Bottom
-                ) {
-                    Icon(imageVector = Icons.Outlined.Timer, contentDescription = null)
-                    Text("Time Remaining")
-                }
+//                Row(
+//                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+//                    verticalAlignment = Alignment.Bottom
+//                ) {
+//                    Icon(imageVector = Icons.Outlined.Timer, contentDescription = null)
+//
+////                    Text("Time Remaining")
+//                }
             }
 
             LazyColumn(
-                modifier = Modifier.border(
-                    width = Dp.Hairline,
-                    color = MaterialTheme.colorScheme.secondary,
-                    shape = RoundedCornerShape(8.dp)
-                ).fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 items(dailyChallenges) { challenge ->
-                    DailyChallenge(challenge = challenge, onChallengeClick = navigateToChallengeDetails)
-                    Divider(modifier = Modifier.fillMaxWidth())
+                    DailyChallenge(
+                        challenge = challenge,
+                        onChallengeClick = navigateToChallengeDetails
+                    )
                 }
             }
         }
@@ -133,7 +140,6 @@ private fun ChallengesTab(
 internal fun DailyChallenge(challenge: Challenge, onChallengeClick: (String) -> Unit = {}) {
     ListItem(
         modifier = Modifier.clickable { onChallengeClick(challenge.uid) },
-        leadingContent = { Text("Image") },
         headlineContent = { Text(challenge.title) },
     )
 }
@@ -142,13 +148,17 @@ internal fun DailyChallenge(challenge: Challenge, onChallengeClick: (String) -> 
 internal fun MonthlyChallenge(challenge: Challenge) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.background(color = MaterialTheme.colorScheme.secondaryContainer).fillMaxWidth()
+        modifier = Modifier.background(color = MaterialTheme.colorScheme.secondaryContainer)
+            .fillMaxWidth()
     ) {
         Row(modifier = Modifier.padding(8.dp)) {
             Column(modifier = Modifier.weight(0.6f)) {
                 Text("MONTH")
                 Text("Title")
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.Bottom) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.Bottom
+                ) {
                     Icon(imageVector = Icons.Outlined.Timer, contentDescription = null)
                     Text("Time Remaining")
                 }
@@ -160,7 +170,8 @@ internal fun MonthlyChallenge(challenge: Challenge) {
         }
 
         Column(
-            modifier = Modifier.padding(16.dp).background(color = MaterialTheme.colorScheme.primaryContainer)
+            modifier = Modifier.padding(16.dp)
+                .background(color = MaterialTheme.colorScheme.primaryContainer)
                 .fillMaxWidth()
         ) {
             Text("Total Points")

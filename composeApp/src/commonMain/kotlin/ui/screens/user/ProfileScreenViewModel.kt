@@ -6,6 +6,7 @@ import data.users.UsersRepository
 import domain.AuthenticationUseCase
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import me.ayitinya.grenes.data.badge.BADGES
 import me.ayitinya.grenes.data.users.UserId
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
@@ -54,8 +55,24 @@ internal class ProfileScreenViewModel(
             try {
                 usersRepository.getUser().let { user ->
                     if (user != null) {
-                        _uiState.update {
-                            it.copy(user = State.Success(user))
+                        viewModelScope.launch {
+                            launch {
+                                _uiState.update {
+                                    it.copy(user = State.Success(user))
+                                }
+                            }
+                            launch {
+                                val badges = BADGES.map { badge ->
+                                    badge.copy(
+                                        isAchieved = user.badges.any { it.uid == badge.uid }
+                                    )
+                                }
+
+                                _uiState.update {
+                                    it.copy(badges = State.Success(badges))
+                                }
+                            }
+
                         }
                     }
                 }

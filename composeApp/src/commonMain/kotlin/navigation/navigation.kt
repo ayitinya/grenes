@@ -3,12 +3,15 @@ package navigation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.dp
 import data.auth.AuthState
 import moe.tlaster.precompose.koin.koinViewModel
 import moe.tlaster.precompose.navigation.rememberNavigator
@@ -68,10 +71,10 @@ fun Nav(
                                         icon = {
                                             Icon(
                                                 imageVector = screen.icon,
-                                                contentDescription = screen.label
+                                                contentDescription = screen.label,
+                                                modifier = Modifier.size(28.dp)
                                             )
                                         },
-                                        label = { Text(screen.label) },
                                         selected = currentDestination == screen.path,
                                         onClick = {
                                             if (currentDestination != screen.path) {

@@ -124,6 +124,7 @@ kotlin {
             implementation(libs.compottie)
 //            implementation("io.github.ismai117:kottie:1.4.3")
             implementation("dev.gitlive:firebase-storage:1.11.1")
+            implementation(libs.materii.pullrefresh)
         }
 
         iosMain.dependencies {

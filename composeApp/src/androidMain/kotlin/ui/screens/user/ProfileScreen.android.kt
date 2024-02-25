@@ -12,9 +12,10 @@ fun UserScreenPreview() {
     UserScreen(
         modifier = Modifier,
         isOwnUser = true,
-        displayName = "Rudy Ayitinya",
         username = "ayitinya",
-        posts = State.Loading()
+        displayName = "Rudy Ayitinya",
+        posts = State.Loading(),
+        badges = State.Loading()
     )
 }
 

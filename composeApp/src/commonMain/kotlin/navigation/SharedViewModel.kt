@@ -12,7 +12,7 @@ import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
 
 class SharedViewModel(
-    authenticationUseCase: AuthenticationUseCase,
+    private val authenticationUseCase: AuthenticationUseCase,
     private val appPreferences: AppPreferences,
 ) : ViewModel() {
     private val _uiState: MutableStateFlow<SharedState> = MutableStateFlow(SharedState())
@@ -31,5 +31,4 @@ class SharedViewModel(
             }
         }
     }
-
 }

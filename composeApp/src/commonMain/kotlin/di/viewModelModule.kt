@@ -12,7 +12,7 @@ import ui.screens.post.PostViewModel
 import ui.screens.user.ProfileScreenViewModel
 
 val viewModelModule = module {
-    factory {
+    single {
         HomeViewModel(get())
     }
 
@@ -39,7 +39,7 @@ val viewModelModule = module {
         )
     }
 
-    factory {
+    single {
         ChallengesViewModel(challengesRepository = get())
     }
 

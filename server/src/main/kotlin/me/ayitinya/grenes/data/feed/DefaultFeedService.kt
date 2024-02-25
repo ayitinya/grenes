@@ -3,13 +3,37 @@ package me.ayitinya.grenes.data.feed
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import me.ayitinya.grenes.data.badge.BADGES
 import me.ayitinya.grenes.data.media.MediaService
+import me.ayitinya.grenes.data.users.UserDao
 import me.ayitinya.grenes.data.users.UserId
 
-class DefaultFeedService(private val mediaService: MediaService, private val feedDao: FeedDao) :
+class DefaultFeedService(
+    private val mediaService: MediaService,
+    private val feedDao: FeedDao,
+    private val usersDao: UserDao,
+) :
     FeedService {
-    override suspend fun create(feed: FeedDto) =
-        feedDao.create(content = feed.content, userUid = feed.user, challengeId = feed.challenge)
+    override suspend fun create(feed: FeedDto): Feed {
+
+        if (feedDao.getFeeds(userId = UserId(feed.user), nextPageNumber = null).isEmpty()) {
+            val user = usersDao.getUserById((feed.user))
+            if (user == null) {
+                throw IllegalArgumentException("User not found")
+            } else {
+                usersDao.updateUser(
+                    uid = user.uid.value,
+                    user = user.copy(badges = user.badges.plus(BADGES.find { it.uid == "familiar_territory" }!!))
+                )
+            }
+        }
+
+
+        return feedDao.create(
+            content = feed.content,
+            userUid = feed.user,
+            challengeId = feed.challenge
+        )
             .let { createdFeed ->
                 feed.media.forEach {
                     CoroutineScope(Dispatchers.IO).launch {
@@ -17,12 +41,15 @@ class DefaultFeedService(private val mediaService: MediaService, private val fee
                             bytes = it.bytes,
                             type = it.type,
                             uid = createdFeed.user.uid,
-                            feedId = createdFeed.id
+                            feedId = createdFeed.id,
+                            fileName = it.fileName
+                                ?: throw IllegalArgumentException("File name is required")
                         )
                     }
                 }
                 return@let createdFeed
             }
+    }
 
     override suspend fun update(feedId: String, feed: FeedDto) {
         feedDao.updateFeed(feedId, feed)
@@ -33,7 +60,9 @@ class DefaultFeedService(private val mediaService: MediaService, private val fee
                     bytes = it.bytes,
                     type = it.type,
                     uid = UserId(feed.user),
-                    feedId = FeedId(feedId)
+                    feedId = FeedId(feedId),
+                    fileName = it.fileName
+                        ?: throw IllegalArgumentException("File name is required")
                 )
             }
         }

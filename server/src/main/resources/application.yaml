@@ -10,8 +10,8 @@ ktor:
       - me.ayitinya.grenes.ApplicationKt.main
   db:
     driver: org.postgresql.Driver
-    url: "jdbc:postgresql:///grenesdb"
-    user: "$DB_USER:admin"
+    url: "jdbc:postgresql:///postgres"
+    user: $DB_USER
     password: $DB_PASSWORD
     datasourceProperties: [ "socketFactory:com.google.cloud.sql.postgres.SocketFactory", "cloudSqlInstance:grenes-1759f:us-central1:grenesdb" ]
 

@@ -22,6 +22,8 @@ import data.users.remote.UserNetworkDataSource
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseAuth
 import dev.gitlive.firebase.auth.auth
+import dev.gitlive.firebase.storage.FirebaseStorage
+import dev.gitlive.firebase.storage.storage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -78,4 +80,10 @@ fun appModule(isProduction: Boolean = true) = module {
     }
 
     single<FeedNetworkDataSource> { DefaultFeedNetworkDataSource(httpClient = get()) }
+
+    single<FirebaseStorage> {
+        val storage = Firebase.storage
+        if (!isProduction) storage.useEmulator("10.0.2.2", 9199)
+        return@single storage
+    }
 }

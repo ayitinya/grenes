@@ -1,19 +1,35 @@
 This is a Kotlin Multiplatform project targeting Android, iOS, Server.
 
-* `/server` is for the Ktor server application.
+* The project was compiled with jdk 21
 
-* `/shared` is for the code that will be shared between all targets in the project.
-  The most important subfolder is `commonMain`. If preferred, you can add code to the platform-specific folders here too.
+* `/server` is for the Ktor server application.
+  * Firebase auth emulator must be running as a call is made to auth during server startup.
+  A service-account.json file is required in the `server/src/resources` directory to run the server.
+  Environment variables  `DB_USER` and `DB_PASSWORD` are required to connect to the database if
+  using Google Cloud SQL.
+  Testing locally with a local database does not require these environment variables and can be run
+  with `./gradlew server:run` with command line arguments `-config=test_application.yaml` to use the
+  local configuration.
+
+* `/admin` is vue js application for the admin dashboard.
+  * The admin dashboard is a separate project and has a separate README.md file.
+
 
 * `/composeApp` is for code that will be shared across your Compose Multiplatform applications.
   It contains several subfolders:
-  - `commonMain` is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    `iosMain` would be the right folder for such calls.
+    - `commonMain` is for code that’s common for all targets.
+    - Other folders are for Kotlin code that will be compiled for only the platform indicated in the
+      folder name.
+    - To run the app, use the `:composeApp:run` Gradle task. You can also run the app from the
+      command line with `./gradlew composeApp:run`. A flag to turn on the use of the emulator is
+      found in `/composeApp/src/commonMain/kotlin/App.kt#18` and is set to `true` to
+      use production environment. Set to `false` to use the emulator.
+    - In production mode, `google-services.json` is required at the root of the `composeApp`
+      directory.
 
-* `/iosApp` contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform, 
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
 
+* `/iosApp` contains iOS applications.
+  > The app has not been tested on ios and is not guaranteed to work.
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+Learn more
+about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…

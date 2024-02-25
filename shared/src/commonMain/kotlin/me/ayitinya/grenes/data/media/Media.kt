@@ -22,7 +22,8 @@ data class Media(
  */
 data class MediaDto(
     val type: ContentType,
-    val bytes: ByteArray
+    val bytes: ByteArray,
+    val fileName: String? = null,
 ) {
 
     override fun equals(other: Any?): Boolean {

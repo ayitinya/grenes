@@ -1,5 +1,6 @@
 package data.feed.remote
 
+import dev.gitlive.firebase.storage.FirebaseStorage
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
@@ -28,7 +29,8 @@ class DefaultFeedNetworkDataSource(private val httpClient: HttpClient) : FeedNet
                     feed.challenge?.let { append("challenge", it) }
                     feed.media.forEach {
                         append("media", it.bytes, headers = Headers.build {
-                            append(HttpHeaders.ContentDisposition, "filename=file")
+                            append(HttpHeaders.ContentType, it.type)
+                            append(HttpHeaders.ContentDisposition, "filename=${it.fileName}")
                         })
                     }
                 }))
@@ -57,7 +59,6 @@ class DefaultFeedNetworkDataSource(private val httpClient: HttpClient) : FeedNet
 
     override suspend fun read(nextPageNumber: Int?): List<Feed> {
         try {
-            println("nextPageNumber $nextPageNumber")
             val response = httpClient.get(FeedResource(nextPageNumber = nextPageNumber))
 
             when (response.status) {

@@ -3,6 +3,8 @@ package ui.screens.post
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.toMutableStateList
 import com.mohamedrejeb.calf.io.KmpFile
+import com.mohamedrejeb.calf.io.name
+import com.mohamedrejeb.calf.io.path
 import com.mohamedrejeb.calf.io.readByteArray
 import data.challenges.ChallengesRepository
 import data.feed.FeedRepository
@@ -44,7 +46,11 @@ class PostViewModel(
     }
 
     fun onMediaContentChange(media: List<KmpFile>?) {
-        _uiState.update { it.copy(mediaContent = media?.toMutableStateList() ?: mutableStateListOf()) }
+        _uiState.update {
+            it.copy(
+                mediaContent = media?.toMutableStateList() ?: mutableStateListOf()
+            )
+        }
         validateForm()
     }
 
@@ -55,7 +61,11 @@ class PostViewModel(
                 content = uiState.value.textContent,
                 user = usersRepository.getUser()?.uid?.value ?: "",
                 media = uiState.value.mediaContent.map {
-                    MediaDto(type = ContentType.Image.Any, bytes = it.readByteArray())
+                    MediaDto(
+                        type = ContentType.Image.Any,
+                        bytes = it.readByteArray(),
+                        fileName = it.name
+                    )
                 })
             try {
                 feedRepository.create(feedDto).let {
@@ -63,7 +73,13 @@ class PostViewModel(
                     _uiState.update { state -> state.copy(formState = FormState.Submitted(it.id)) }
                 }
             } catch (e: Exception) {
-                _uiState.update { it.copy(formState = FormState.Error(e.message ?: "An Unknown Error Occurred")) }
+                _uiState.update {
+                    it.copy(
+                        formState = FormState.Error(
+                            e.message ?: "An Unknown Error Occurred"
+                        )
+                    )
+                }
             }
         }
     }

@@ -14,9 +14,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import grenes.composeapp.generated.resources.Res
+import me.ayitinya.grenes.data.badge.Badge
 import me.ayitinya.grenes.data.feed.Feed
 import me.ayitinya.grenes.data.users.UserId
 import moe.tlaster.precompose.koin.koinViewModel
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.painterResource
 import org.koin.core.parameter.parametersOf
 import ui.catalog.ErrorScreen
 import ui.catalog.FeedCard
@@ -44,7 +48,8 @@ internal fun UserScreen(
             isOwnUser = uiState.isOwnUser,
             username = state.value.username ?: "",
             displayName = state.value.displayName ?: "",
-            posts = uiState.feed
+            posts = uiState.feed,
+            badges = uiState.badges
         )
 
         is State.Error -> ErrorScreen(modifier = modifier)
@@ -54,11 +59,12 @@ internal fun UserScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalResourceApi::class)
 @Composable
 internal fun UserScreen(
     modifier: Modifier,
     isOwnUser: Boolean,
+    badges: State<List<Badge>>,
     username: String,
     displayName: String,
     posts: State<List<Feed>>,
@@ -84,7 +90,7 @@ internal fun UserScreen(
     }, modifier = modifier) { paddingValues ->
         Column(
             modifier = Modifier.padding(paddingValues).fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
@@ -95,7 +101,12 @@ internal fun UserScreen(
 
                 Column {
                     Text(text = displayName, style = MaterialTheme.typography.headlineSmall)
-                    Text(text = "@$username", style = MaterialTheme.typography.bodyMedium)
+                    if (username.isNotEmpty()) {
+                        Text(
+                            text = "@$username",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                 }
             }
 
@@ -137,7 +148,7 @@ internal fun UserScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Icon(
-                        imageVector = Icons.Default.CalendarMonth,
+                        painter = painterResource(Res.drawable.fire_solid),
                         contentDescription = "Streak",
                         modifier = Modifier.size(36.dp)
                     )
@@ -147,7 +158,7 @@ internal fun UserScreen(
             }
 
             var state by remember { mutableStateOf(0) }
-            val titles = listOf("Post", "Timeline", "Gallery")
+            val titles = listOf("Post", "Badges", "Gallery")
 
             TabRow(
                 selectedTabIndex = state,
@@ -171,7 +182,6 @@ internal fun UserScreen(
                             is State.Success -> {
                                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                                     items(posts.value) {
-                                        println("recomposing...")
                                         FeedCard(
                                             feed = it,
                                             modifier = Modifier.fillMaxWidth(),
@@ -185,7 +195,39 @@ internal fun UserScreen(
                     }
 
                     1 -> {
-                        Text(text = "Tab 2")
+                        LazyColumn {
+                            when (badges) {
+                                is State.Success -> {
+                                    items(badges.value) {
+                                        ListItem(
+                                            headlineContent = { Text(text = it.name) },
+                                            supportingContent = { Text(text = it.description) },
+                                            leadingContent = {
+                                                Icon(
+                                                    painter = painterResource(Res.drawable.feather_award),
+                                                    contentDescription = "Badge",
+                                                    modifier = Modifier.size(36.dp)
+                                                )
+                                            },
+                                            trailingContent = { Text(if (it.isAchieved) "1 of 1" else "0 of 1") }
+                                        )
+                                    }
+                                }
+
+                                is State.Empty -> item {
+                                    Text(text = "No badges yet")
+
+                                }
+
+                                is State.Error -> item {
+                                    ErrorScreen(modifier = Modifier.fillMaxSize())
+                                }
+
+                                is State.Loading -> item {
+                                    Loading(modifier = Modifier.fillMaxSize())
+                                }
+                            }
+                        }
                     }
 
                     2 -> {

@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "me.ayitinya.grenes"
-version = "1.0.0"
+version = "1.0.1"
 application {
     mainClass.set("me.ayitinya.grenes.ApplicationKt")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=${extra["development"] ?: "false"}")

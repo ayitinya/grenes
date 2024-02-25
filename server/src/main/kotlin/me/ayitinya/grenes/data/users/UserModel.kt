@@ -1,6 +1,8 @@
 package me.ayitinya.grenes.data.users
 
 import kotlinx.datetime.Clock
+import me.ayitinya.grenes.data.badge.BADGES
+import me.ayitinya.grenes.data.badge.Badge
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
@@ -19,6 +21,8 @@ internal object UsersTable : Table() {
     val city = varchar("city", 256).nullable()
     val profileAvatar = varchar("profileAvatar", 256).nullable()
 
+    val badges = text("badges", eagerLoading = true).default("")
+
     override val primaryKey = PrimaryKey(uid)
 }
 
@@ -31,6 +35,14 @@ fun ResultRow.toUser(): User {
         createdAt = this[UsersTable.createdAt],
         country = this[UsersTable.country],
         city = this[UsersTable.city],
-        profileAvatar = this[UsersTable.profileAvatar]
+        profileAvatar = this[UsersTable.profileAvatar],
+        badges = this[UsersTable.badges].split(",").map { badgeId ->
+            BADGES.find { it.uid == badgeId } ?: Badge(
+                name = "Unknown",
+                description = "Unknown",
+                imageUrl = "Unknown",
+                uid = "Unknown"
+            )
+        }
     )
 }

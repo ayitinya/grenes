@@ -45,7 +45,7 @@ internal class Db(
         transaction(database) {
             addLogger(StdOutSqlLogger)
 
-            SchemaUtils.create(
+            SchemaUtils.createMissingTablesAndColumns(
                 UsersTable,
                 MediaTable,
                 ChallengeTypes,
@@ -77,6 +77,7 @@ internal class Db(
     })
 
     companion object {
-        suspend fun <T> query(block: suspend () -> T): T = newSuspendedTransaction(Dispatchers.IO) { block() }
+        suspend fun <T> query(block: suspend () -> T): T =
+            newSuspendedTransaction(Dispatchers.IO) { block() }
     }
 }

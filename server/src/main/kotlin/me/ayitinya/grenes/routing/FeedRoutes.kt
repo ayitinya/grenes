@@ -68,7 +68,8 @@ fun Route.feedRoutes() {
                             val fileBytes = part.streamProvider().readBytes()
                             val mediaDto = MediaDto(
                                 type = part.contentType ?: ContentType.Any,
-                                bytes = fileBytes
+                                bytes = fileBytes,
+                                fileName = part.originalFileName ?: part.name
                             )
                             media.add(mediaDto)
                         }

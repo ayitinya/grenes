@@ -5,7 +5,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Edit
@@ -114,24 +116,23 @@ fun FeedDetail(
                 }
             })
     }) { paddingValues ->
-        Column(
-            modifier = Modifier.padding(paddingValues).fillMaxSize()
+        LazyColumn(
+            modifier = Modifier.padding(paddingValues).fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            FeedCard(
-                feed = feed,
-                modifier = Modifier.fillMaxWidth(),
-                navigateToChallenge = {}, reactToFeed = {}, removeReaction = {})
-
-            Divider()
-
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth().fillMaxHeight(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(feed.comments) {
-                    CommentCard(modifier = Modifier.fillMaxWidth(), comment = it)
-                }
+            item {
+                FeedCard(
+                    feed = feed,
+                    modifier = Modifier.fillMaxWidth(),
+                    navigateToChallenge = {}, reactToFeed = {}, removeReaction = {})
             }
+
+            item { Divider() }
+
+            items(feed.comments) {
+                CommentCard(modifier = Modifier.fillMaxWidth(), comment = it)
+            }
+
         }
     }
 }
@@ -148,35 +149,7 @@ fun CommentCard(modifier: Modifier = Modifier, comment: FeedComment) {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(horizontal = 8.dp)
         ) {
-            KamelImage(
-                resource = asyncPainterResource(
-                    data = Url(
-                        "https://api.dicebear.com/7.x/initials/png?seed=${
-                            comment.user.displayName?.replace(
-                                " ",
-                                "%20"
-                            )
-                        }&randomizeIds=true"
-                    )
-                ),
-                contentDescription = null,
-                modifier = Modifier.clip(RoundedCornerShape(20)).size(25.dp),
-                onFailure = {
-                    it.printStackTrace()
-                    Box(
-                        modifier = Modifier.clip(RoundedCornerShape(20)).width(25.dp)
-                            .height(25.dp)
-                            .background(color = MaterialTheme.colorScheme.secondaryContainer)
-                    )
-                },
-                onLoading = {
-                    Box(
-                        modifier = Modifier.clip(RoundedCornerShape(20)).width(25.dp)
-                            .height(25.dp)
-                            .background(color = MaterialTheme.colorScheme.secondaryContainer)
-                    )
-                }
-            )
+            ProfilePhoto(displayName = comment.user.displayName ?: "")
 
             Column(modifier = Modifier.padding(8.dp)) {
                 Text(
